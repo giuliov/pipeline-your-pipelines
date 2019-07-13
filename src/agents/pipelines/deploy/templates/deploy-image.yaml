@@ -7,6 +7,7 @@ parameters:
   image_name_prefix: 'azure-pipelines-agent'
   docker_registry: 'giuliovprodemo.azurecr.io'
   docker_registry_connection: 'mydemo.azurecr.io'
+  azuredevops_pat: ''
 
 jobs:
 - job: 'deploy_${{ parameters.os }}'
@@ -48,6 +49,6 @@ jobs:
       arguments: '--name=$(container_name) --restart=always --env AZP_URL --env AZP_TOKEN --env AZP_POOL --env AZP_AGENT_NAME --detach $(docker_image_id)'
     env:
       AZP_URL: '$(System.TeamFoundationCollectionUri)'
-      AZP_TOKEN: '$(System.AccessToken)'
+      AZP_TOKEN: '${{ parameters.azuredevops_pat }}'
       AZP_POOL: Default
       AZP_AGENT_NAME: '$(container_name)'
