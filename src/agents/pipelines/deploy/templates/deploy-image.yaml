@@ -44,7 +44,7 @@ jobs:
   - powershell: |
       $f = "env.list"
       Set-Content $f "AZP_URL=$(System.TeamFoundationCollectionUri)" -Encoding UTF8
-      Add-Content $f "AZP_TOKEN=$(AZURE_DEVOPS_PAT)" -Encoding UTF8
+      Add-Content $f "AZP_TOKEN=$[ variables.AZURE_DEVOPS_PAT ]" -Encoding UTF8
       Add-Content $f "AZP_POOL=Default" -Encoding UTF8
       Add-Content $f "AZP_AGENT_NAME=$(container_name)" -Encoding UTF8
     displayName: 'Write env.list'
