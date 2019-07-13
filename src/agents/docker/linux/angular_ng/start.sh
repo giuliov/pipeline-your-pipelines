@@ -35,7 +35,7 @@ fi
 source ./env.sh
 
 ./bin/Agent.Listener configure --unattended \
-  --agent "${AZP_POOL:-$(hostname)}" \
+  --agent "${AZP_AGENT_NAME:-$(hostname)}" \
   --url "$AZP_URL" \
   --auth PAT \
   --token $(cat "$AZP_TOKEN_FILE") \
