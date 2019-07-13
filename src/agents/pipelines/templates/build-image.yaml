@@ -17,7 +17,7 @@ steps:
   inputs:
     command: buildAndPush
     repository: '${{ parameters.docker_registry }}'
-    dockerFile: '$( repo_docker_path )/${{ parameters.os }}/${{ parameters.toolchain }}_${{ parameters.toolchain_version }}/Dockerfile'
+    dockerFile: '${{ parameters.repo_docker_path }}/${{ parameters.os }}/${{ parameters.toolchain }}_${{ parameters.toolchain_version }}/Dockerfile'
     imageName: '${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
     tags: |
       ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:${{ parameters.toolchain_version }}
