@@ -45,7 +45,7 @@ jobs:
     displayName: 'Run container $(container_name)'
     inputs:
       command: run
-      arguments: '--name=$(container_name) --restart=always --detach $(docker_image_id)'
+      arguments: '--name=$(container_name) --restart=always --env AZP_URL --env AZP_TOKEN --env AZP_POOL --env AZP_AGENT_NAME --detach $(docker_image_id)'
     env:
       AZP_URL: '$(System.TeamFoundationCollectionUri)'
       AZP_TOKEN: '$(System.AccessToken)'
