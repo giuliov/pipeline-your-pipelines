@@ -18,10 +18,10 @@ jobs:
     docker_image_id: '${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}:${{ parameters.toolchain_version }}'
     container_name: '${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
   steps:
-  - script: echo PAT = $(AZURE_DEVOPS_PAT). Env var = %AZURE_DEVOPS_PAT%
-    condition: eq(variables['agent.os'], 'Windows_NT')
-  - script: echo PAT = $(AZURE_DEVOPS_PAT). Env var = $AZURE_DEVOPS_PAT
-    condition: in(variables['agent.os'], 'Darwin', 'Linux')  
+  - script: echo Must define AZURE_DEVOPS_PAT variable!
+    condition: eq(variables['AZURE_DEVOPS_PAT'], '')
+    env:
+      AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
   - powershell: |
       $ContainerName = "$(container_name)"
       $res = docker ps --format "{{.ID}}" --filter "name=$ContainerName"
@@ -52,6 +52,8 @@ jobs:
       Add-Content $f "AZP_POOL=Default" -Encoding UTF8
       Add-Content $f "AZP_AGENT_NAME=$(container_name)" -Encoding UTF8
     displayName: 'Write env.list'
+    env:
+      AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
   - task: Docker@2
     displayName: 'Run container $(container_name)'
     inputs:
@@ -59,4 +61,4 @@ jobs:
       arguments: '--name=$(container_name) --restart=always --env-file=env.list --detach $(docker_image_id)'
   # - task: DeleteFiles@1
   #   inputs:
-  #     contents: 'env.list' 
+  #     contents: 'env.list'

@@ -5,12 +5,6 @@ trigger:
       - src/agents/*
 
 jobs:
-- job: DEBUG
-  steps:
-  - script: echo PAT = $(AZURE_DEVOPS_PAT). Env var = %AZURE_DEVOPS_PAT%
-    condition: eq(variables['agent.os'], 'Windows_NT')
-  - script: echo PAT = $(AZURE_DEVOPS_PAT). Env var = $AZURE_DEVOPS_PAT
-    condition: in(variables['agent.os'], 'Darwin', 'Linux')
 - template: templates/deploy-image.yaml
   parameters:
     os: 'windows'
