@@ -10,5 +10,6 @@ pool:
 steps:
 - template: templates/build-image.yaml
   parameters:
+    os: 'linux'
     toolchain: 'angular'
     toolchain_version: 'ng'
