@@ -6,7 +6,7 @@ parameters:
   repo_docker_path: 'src/agents/docker'
   image_name_prefix: 'azure-pipelines-agent'
   docker_registry: 'giuliovprodemo.azurecr.io'
-  
+  docker_registry_connection: 'mydemo.azurecr.io'
 
 jobs:
 - job: 'deploy_${{ parameters.os }}'
@@ -35,7 +35,7 @@ jobs:
     displayName: Login to ACR
     inputs:
       command: login
-      containerRegistry: '${{ parameters.docker_registry }}'
+      containerRegistry: '${{ parameters.docker_registry_connection }}'
   - task: Docker@2
     displayName: 'Pull $(docker_image_id)'
     inputs:
