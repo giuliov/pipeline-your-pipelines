@@ -19,7 +19,7 @@ steps:
     dockerFile: '${{ parameters.repo_docker_path }}/${{ parameters.toolchain }}/${{ parameters.toolchain_version }}/Dockerfile'
     imageName: '${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
     tags: |
-    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:${{ parameters.toolchain_version }}
-    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:src-$(Build.SourceVersion)
-    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:bld-$(Build.BuildId)
-    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:latest
+      ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:${{ parameters.toolchain_version }}
+      ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:src-$(Build.SourceVersion)
+      ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:bld-$(Build.BuildId)
+      ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:latest
