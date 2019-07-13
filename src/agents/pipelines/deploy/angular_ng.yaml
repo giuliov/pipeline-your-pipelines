@@ -1,0 +1,15 @@
+trigger:
+  batch: true
+  paths:
+    include:
+      - src/agents/*
+pool:
+  name: MakeAgents
+  demands:
+  - agent.os -equals Linux
+jobs:
+- template: templates/deploy-image.yaml
+  parameters:
+    os: 'linux'
+    toolchain: 'angular'
+    toolchain_version: 'ng'

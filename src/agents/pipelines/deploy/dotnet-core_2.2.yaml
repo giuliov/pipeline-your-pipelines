@@ -1,0 +1,15 @@
+trigger:
+  batch: true
+  paths:
+    include:
+      - src/agents/*
+pool:
+  name: MakeAgents
+  demands:
+  - agent.os -equals Windows_NT
+jobs:
+- template: templates/deploy-image.yaml
+  parameters:
+    os: 'windows'
+    toolchain: 'dotnet-core'
+    toolchain_version: '2.2'

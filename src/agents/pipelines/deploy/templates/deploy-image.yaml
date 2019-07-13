@@ -1,0 +1,51 @@
+parameters:
+  os: ''
+  toolchain: ''
+  toolchain_version: ''
+  repo_docker_path: 'src/agents/docker'
+  image_name_prefix: 'azure-pipelines-agent'
+  docker_registry: 'mydemo.azurecr.io'
+  
+
+jobs:
+- job: 'deploy ${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
+  pool:
+    demands:
+    - 'agent.os -equals ${{ parameters.os }}'
+  variables:
+    docker_image_id: '${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}:${{ parameters.toolchain_version }}'
+    container_name: '${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
+  steps:
+  - powershell: |
+    $ContainerName = "$(container_name)"
+    $res = docker ps --format "{{.ID}}" --filter "name=$ContainerName"
+    $value = if ($res -eq $null) { "false" } else { "true" }
+    Write-Host "ContainerIsRunning=$value"
+    Write-Output "##vso[task.setvariable variable=ContainerIsRunning;]$value"
+    displayName: 'Check if container $(container_name) is running'
+  - task: Docker@2
+    displayName: 'Stop running container $(container_name)'
+    inputs:
+      command: rm
+      arguments: '--force $(container_name)'
+    condition: and(succeeded(), eq(variables['ContainerIsRunning'], 'true'))
+  - task: Docker@2
+    displayName: Login to ACR
+    inputs:
+      command: login
+      containerRegistry: '${{ parameters.docker_registry }}'
+  - task: Docker@2
+    displayName: 'Pull  $(container_name)'
+    inputs:
+      command: pull
+      arguments: '$(docker_image_id)'
+  - task: Docker@2
+    displayName: 'Run container $(container_name)'
+    inputs:
+      command: run
+      arguments: '--name=$(container_name) --restart=always --detach $(docker_image_id)'
+    env: |
+      AZP_URL=$(System.TeamFoundationCollectionUri)
+      AZP_TOKEN=$(System.AccessToken)
+      AZP_POOL=Default
+      AZP_AGENT_NAME=$(container_name)
