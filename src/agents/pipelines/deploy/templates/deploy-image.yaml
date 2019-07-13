@@ -18,11 +18,11 @@ jobs:
     container_name: '${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
   steps:
   - powershell: |
-    $ContainerName = "$(container_name)"
-    $res = docker ps --format "{{.ID}}" --filter "name=$ContainerName"
-    $value = if ($res -eq $null) { "false" } else { "true" }
-    Write-Host "ContainerIsRunning=$value"
-    Write-Output "##vso[task.setvariable variable=ContainerIsRunning;]$value"
+      $ContainerName = "$(container_name)"
+      $res = docker ps --format "{{.ID}}" --filter "name=$ContainerName"
+      $value = if ($res -eq $null) { "false" } else { "true" }
+      Write-Host "ContainerIsRunning=$value"
+      Write-Output "##vso[task.setvariable variable=ContainerIsRunning;]$value"
     displayName: 'Check if container $(container_name) is running'
   - task: Docker@2
     displayName: 'Stop running container $(container_name)'
