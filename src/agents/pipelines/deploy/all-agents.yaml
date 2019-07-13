@@ -8,6 +8,7 @@ jobs:
 - template: templates/deploy-image.yaml
   parameters:
     os: 'windows'
+    os_tag: 'Windows_NT'
     toolchain: 'dotnet-core'
     toolchain_version: '2.2'
 - template: templates/deploy-image.yaml
