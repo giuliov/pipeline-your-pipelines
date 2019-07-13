@@ -45,20 +45,25 @@ jobs:
     inputs:
       command: pull
       arguments: '$(docker_image_id)'
-  - powershell: |
-      $f = "env.list"
-      Set-Content $f "AZP_URL=$(System.TeamFoundationCollectionUri)" -Encoding UTF8
-      Add-Content $f "AZP_TOKEN=$env:AZURE_DEVOPS_PAT" -Encoding UTF8
-      Add-Content $f "AZP_POOL=Default" -Encoding UTF8
-      Add-Content $f "AZP_AGENT_NAME=$(container_name)" -Encoding UTF8
-    displayName: 'Write env.list'
-    env:
-      AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
+  # - powershell: |
+  #     $f = "env.list"
+  #     Set-Content $f "AZP_URL=$(System.TeamFoundationCollectionUri)" -Encoding UTF8
+  #     Add-Content $f "AZP_TOKEN=$env:AZURE_DEVOPS_PAT" -Encoding UTF8
+  #     Add-Content $f "AZP_POOL=Default" -Encoding UTF8
+  #     Add-Content $f "AZP_AGENT_NAME=$(container_name)" -Encoding UTF8
+  #   displayName: 'Write env.list'
+  #   env:
+  #     AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
   - task: Docker@2
     displayName: 'Run container $(container_name)'
     inputs:
       command: run
-      arguments: '--name=$(container_name) --restart=always --env-file=env.list --detach $(docker_image_id)'
+      arguments: '--name=$(container_name) --restart=always --env AZP_URL --env AZP_TOKEN --env AZP_POOL --env AZP_AGENT_NAME --detach $(docker_image_id)'
+    env:
+      AZP_URL: '$(System.TeamFoundationCollectionUri)'
+      AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
+      AZP_POOL: 'Default'
+      AZP_AGENT_NAME: '$(container_name)'
   # - task: DeleteFiles@1
   #   inputs:
   #     contents: 'env.list'
