@@ -3,7 +3,7 @@ parameters:
   toolchain: ''
   toolchain_version: ''
   repo_docker_path: 'src/agents/docker'
-  image_name_prefix: 'mydemo/azure-pipelines-agent'
+  image_name_prefix: 'azure-pipelines-agent'
   docker_registry: 'mydemo.azurecr.io'
 
 steps:
@@ -16,9 +16,9 @@ steps:
   displayName: 'Building ${{ parameters.toolchain }} ${{ parameters.toolchain_version }} image'
   inputs:
     command: buildAndPush
-    repository: '${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}'
+    repository: '${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}'
     dockerFile: '${{ parameters.repo_docker_path }}/${{ parameters.os }}/${{ parameters.toolchain }}_${{ parameters.toolchain_version }}/Dockerfile'
-    imageName: '${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
+    imageName: '${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
     tags: |
       ${{ parameters.toolchain_version }}
       latest
