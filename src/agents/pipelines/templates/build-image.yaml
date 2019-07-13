@@ -1,0 +1,25 @@
+parameters:
+  toolchain: ''
+  toolchain_version: ''
+  repo_docker_path: 'docker/azure-pipelines-agent'
+  image_name_prefix: 'devops/azure-pipelines-agent'
+  docker_registry: 'mydemo.azurecr.io'
+
+steps:
+- task: Docker@2
+  displayName: Login to ACR
+  inputs:
+    command: login
+    containerRegistry: '${{ parameters.docker_registry }}'
+- task: Docker@2
+  displayName: 'Building ${{ parameters.toolchain }} ${{ parameters.toolchain_version }} image'
+  inputs:
+    command: buildAndPush
+    repository: '${{ parameters.docker_registry }}'
+    dockerFile: '${{ parameters.repo_docker_path }}/${{ parameters.toolchain }}/${{ parameters.toolchain_version }}/Dockerfile'
+    imageName: '${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
+    tags: |
+    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:${{ parameters.toolchain_version }}
+    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:src-$(Build.SourceVersion)
+    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:bld-$(Build.BuildId)
+    ${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.toolchain }}-${{ parameters.toolchain_version }}:latest
