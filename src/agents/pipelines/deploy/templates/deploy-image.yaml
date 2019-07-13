@@ -61,7 +61,7 @@ jobs:
       arguments: '--name=$(container_name) --restart=always --env AZP_URL --env AZP_TOKEN --env AZP_POOL --env AZP_AGENT_NAME --detach $(docker_image_id)'
     env:
       AZP_URL: '$(System.TeamFoundationCollectionUri)'
-      AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
+      AZP_TOKEN: '$(AZURE_DEVOPS_PAT)'
       AZP_POOL: 'Default'
       AZP_AGENT_NAME: '$(container_name)'
   # - task: DeleteFiles@1
