@@ -17,7 +17,12 @@ jobs:
   variables:
     docker_image_id: '${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}:${{ parameters.toolchain_version }}'
     container_name: '${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
+    AZURE_DEVOPS_PAT: 'invalid-PAT@job'
   steps:
+  - script: echo PAT = $(AZURE_DEVOPS_PAT). Env var = %AZURE_DEVOPS_PAT%
+    condition: eq(variables['agent.os'], 'Windows_NT')
+  - script: echo PAT = $(AZURE_DEVOPS_PAT). Env var = $AZURE_DEVOPS_PAT
+    condition: in(variables['agent.os'], 'Darwin', 'Linux')  
   - powershell: |
       $ContainerName = "$(container_name)"
       $res = docker ps --format "{{.ID}}" --filter "name=$ContainerName"
@@ -44,7 +49,7 @@ jobs:
   - powershell: |
       $f = "env.list"
       Set-Content $f "AZP_URL=$(System.TeamFoundationCollectionUri)" -Encoding UTF8
-      Add-Content $f "AZP_TOKEN=$[ variables.AZURE_DEVOPS_PAT ]" -Encoding UTF8
+      Add-Content $f "AZP_TOKEN=$env:AZURE_DEVOPS_PAT" -Encoding UTF8
       Add-Content $f "AZP_POOL=Default" -Encoding UTF8
       Add-Content $f "AZP_AGENT_NAME=$(container_name)" -Encoding UTF8
     displayName: 'Write env.list'
