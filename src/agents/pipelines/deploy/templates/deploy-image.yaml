@@ -15,7 +15,7 @@ jobs:
     demands:
     - 'agent.os -equals ${{ coalesce( parameters.os_tag, parameters.os ) }}'
   variables:
-    docker_image_id: '${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}:${{ parameters.toolchain_version }}'
+    docker_image_id: '${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}:${{ parameters.toolchain_version }}'
     container_name: '${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
   steps:
   - powershell: |
@@ -40,7 +40,7 @@ jobs:
     displayName: 'Pull $(docker_image_id)'
     inputs:
       command: pull
-      arguments: '${{ parameters.docker_registry }}/$(docker_image_id)'
+      arguments: '$(docker_image_id)'
   - task: Docker@2
     displayName: 'Run container $(container_name)'
     inputs:
