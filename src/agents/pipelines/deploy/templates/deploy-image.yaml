@@ -5,7 +5,7 @@ parameters:
   toolchain_version: ''
   repo_docker_path: 'src/agents/docker'
   image_name_prefix: 'azure-pipelines-agent'
-  docker_registry: 'mydemo.azurecr.io'
+  docker_registry: 'giuliovprodemo.azurecr.io'
   
 
 jobs:
@@ -37,10 +37,10 @@ jobs:
       command: login
       containerRegistry: '${{ parameters.docker_registry }}'
   - task: Docker@2
-    displayName: 'Pull  $(container_name)'
+    displayName: 'Pull $(docker_image_id)'
     inputs:
       command: pull
-      arguments: '$(docker_image_id)'
+      arguments: '${{ parameters.docker_registry }}/$(docker_image_id)'
   - task: Docker@2
     displayName: 'Run container $(container_name)'
     inputs:
