@@ -8,7 +8,7 @@ parameters:
   
 
 jobs:
-- job: 'deploy ${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
+- job: 'deploy_${{ parameters.os }}'
   pool:
     name: MakeAgents
     demands:
