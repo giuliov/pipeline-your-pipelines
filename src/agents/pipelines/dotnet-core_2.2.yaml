@@ -1,3 +1,8 @@
+trigger:
+  batch: true
+  paths:
+    include:
+      - src/agents/*
 pool:
   name: MakeAgents
   demands:
@@ -5,5 +10,6 @@ pool:
 steps:
 - template: templates/build-image.yaml
   parameters:
+    os: 'windows'
     toolchain: 'dotnet-core'
     toolchain_version: '2.2'
