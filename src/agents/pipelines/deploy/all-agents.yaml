@@ -4,10 +4,6 @@ trigger:
     include:
       - src/agents/*
 
-variables:
-- name: AZURE_DEVOPS_PAT
-  value: 'invalid-PAT@pipeline' # no default: override when queueing
-
 jobs:
 - job: DEBUG
   steps:

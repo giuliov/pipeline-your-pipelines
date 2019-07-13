@@ -17,7 +17,6 @@ jobs:
   variables:
     docker_image_id: '${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}:${{ parameters.toolchain_version }}'
     container_name: '${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
-    AZURE_DEVOPS_PAT: 'invalid-PAT@job'
   steps:
   - script: echo PAT = $(AZURE_DEVOPS_PAT). Env var = %AZURE_DEVOPS_PAT%
     condition: eq(variables['agent.os'], 'Windows_NT')
