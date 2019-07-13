@@ -66,6 +66,6 @@ ENTRYPOINT .\bin\Agent.Listener.exe configure --unattended `
     --auth PAT `
     --token "$env:AZP_TOKEN" `
     --pool "$env:AZP_POOL" `
-    --work "_work" `
+    --work "$env:AZP_WORK" `
     --replace; `
     .\bin\Agent.Listener.exe run

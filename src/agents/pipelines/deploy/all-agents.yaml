@@ -15,10 +15,8 @@ jobs:
     os_tag: 'Windows_NT'
     toolchain: 'dotnet-core'
     toolchain_version: '2.2'
-    azuredevops_pat: '$(AZURE_DEVOPS_PAT)'
 - template: templates/deploy-image.yaml
   parameters:
     os: 'linux'
     toolchain: 'angular'
     toolchain_version: 'ng'
-    azuredevops_pat: '$(AZURE_DEVOPS_PAT)'
