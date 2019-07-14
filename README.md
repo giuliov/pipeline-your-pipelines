@@ -11,6 +11,6 @@ Article series about automating Azure Pipelines infrastructure
 
 [4. Deploy and Run](./doc/4-Deploy.md)
 
-_planned_
+5. Automating the Host Environment[](./doc/5-Automating.md) (_planned_)
 
-5. Automating the Host Environment[](./doc/5-Automating.md)
+6. Scaling code and resources[](./doc/6-Scaling.md) (_planned_)
