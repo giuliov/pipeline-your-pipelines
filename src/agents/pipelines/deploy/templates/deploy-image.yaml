@@ -18,7 +18,9 @@ jobs:
     docker_image_id: '${{ parameters.docker_registry }}/${{ parameters.image_name_prefix }}/${{ parameters.os }}/${{ parameters.toolchain }}:${{ parameters.toolchain_version }}'
     container_name: '${{ parameters.toolchain }}-${{ parameters.toolchain_version }}'
   steps:
-  - script: echo Must define AZURE_DEVOPS_PAT variable!
+  - powershell: |
+      echo Must define AZURE_DEVOPS_PAT variable!
+      exit 1
     condition: eq(variables['AZURE_DEVOPS_PAT'], '')
     env:
       AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
