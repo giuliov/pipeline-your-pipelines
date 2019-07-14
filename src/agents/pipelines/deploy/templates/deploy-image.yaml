@@ -22,6 +22,16 @@ jobs:
     condition: eq(variables['AZURE_DEVOPS_PAT'], '')
     env:
       AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
+  - task: Docker@2
+    displayName: Login to Docker Registry
+    inputs:
+      command: login
+      containerRegistry: '${{ parameters.docker_registry_connection }}'
+  - task: Docker@2
+    displayName: 'Pull $(docker_image_id)'
+    inputs:
+      command: pull
+      arguments: '$(docker_image_id)'
   - powershell: |
       $ContainerName = "$(container_name)"
       $res = docker ps --format "{{.ID}}" --filter "name=$ContainerName"
@@ -36,25 +46,6 @@ jobs:
       arguments: '--force $(container_name)'
     condition: and(succeeded(), eq(variables['ContainerIsRunning'], 'true'))
   - task: Docker@2
-    displayName: Login to ACR
-    inputs:
-      command: login
-      containerRegistry: '${{ parameters.docker_registry_connection }}'
-  - task: Docker@2
-    displayName: 'Pull $(docker_image_id)'
-    inputs:
-      command: pull
-      arguments: '$(docker_image_id)'
-  # - powershell: |
-  #     $f = "env.list"
-  #     Set-Content $f "AZP_URL=$(System.TeamFoundationCollectionUri)" -Encoding UTF8
-  #     Add-Content $f "AZP_TOKEN=$env:AZURE_DEVOPS_PAT" -Encoding UTF8
-  #     Add-Content $f "AZP_POOL=Default" -Encoding UTF8
-  #     Add-Content $f "AZP_AGENT_NAME=$(container_name)" -Encoding UTF8
-  #   displayName: 'Write env.list'
-  #   env:
-  #     AZURE_DEVOPS_PAT: '$(AZURE_DEVOPS_PAT)'
-  - task: Docker@2
     displayName: 'Run container $(container_name)'
     inputs:
       command: run
@@ -64,6 +55,3 @@ jobs:
       AZP_TOKEN: '$(AZURE_DEVOPS_PAT)'
       AZP_POOL: 'Default'
       AZP_AGENT_NAME: '$(container_name)'
-  # - task: DeleteFiles@1
-  #   inputs:
-  #     contents: 'env.list'
