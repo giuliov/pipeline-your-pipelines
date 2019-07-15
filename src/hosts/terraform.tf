@@ -1,6 +1,10 @@
 terraform {
   required_version = "~> 0.12"
+
+  backend "remote" {} # configuration in backend.hcl
 }
+# Use option -backend-config
+#   terraform init -backend-config="backend.hcl"
 
 provider "azurerm" {
   version         = "~> 1.31"

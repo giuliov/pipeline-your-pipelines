@@ -4,3 +4,4 @@
 .terraform
 _plan
 .DS_Store
+backend.hcl
