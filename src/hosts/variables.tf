@@ -35,8 +35,3 @@ variable "azuredevops_pool_hosts" {
   description = "Azure DevOps Pool for Hosts."
 }
 
-variable "win_agents_folder" {
-  description = "Full path for Azure DevOps Agents."
-  default     = "C:\\Agents"
-}
-

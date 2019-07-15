@@ -6,9 +6,8 @@ AZP_TOKEN=$2
 AZP_POOL=$3
 
 sudo apt-get install -y docker.io
-# see https://docs.docker.com/install/linux/linux-postinstall/
-sudo groupadd docker
-sudo usermod -aG docker $USER
+## see https://docs.docker.com/install/linux/linux-postinstall/
+##sudo usermod -aG docker $USER
 
 # install Powershell 6
 # see https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-6

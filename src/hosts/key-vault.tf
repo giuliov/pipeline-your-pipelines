@@ -45,6 +45,7 @@ resource "random_string" "vm_admin_password" {
 resource "azurerm_key_vault_secret" "pyp_vm_admin" {
   name         = "vm-admin"
   value        = random_string.vm_admin_password.result
+  content_type = "password"
   key_vault_id = azurerm_key_vault.pyp.id
 
   tags = local.tags

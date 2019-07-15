@@ -3,7 +3,7 @@ resource "azurerm_virtual_machine" "windows_vm" {
   name                             = "${var.env_name}-win${count.index + 1}-vm"
   location                         = azurerm_resource_group.pyp.location
   resource_group_name              = azurerm_resource_group.pyp.name
-  network_interface_ids            = [azurerm_network_interface.vm[count.index].id]
+  network_interface_ids            = [azurerm_network_interface.vm_windows[count.index].id]
   vm_size                          = "Standard_B2s"
   delete_os_disk_on_termination    = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
   delete_data_disks_on_termination = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
@@ -47,12 +47,13 @@ resource "azurerm_virtual_machine" "windows_vm" {
     provision_vm_agent        = true
     enable_automatic_upgrades = false
 
+    /*
     winrm {
       protocol        = "HTTPS"
       certificate_url = azurerm_key_vault_certificate.win_vm[count.index].secret_id
     }
+    */
 
-    /*
     # Auto-Login's required to configure WinRM
     additional_unattend_config {
       pass         = "oobeSystem"
@@ -68,7 +69,6 @@ resource "azurerm_virtual_machine" "windows_vm" {
       setting_name = "FirstLogonCommands"
       content      = file("${path.module}/scripts/FirstLogonCommands.xml")
     }
-    */
   }
 
   /*
@@ -111,11 +111,11 @@ resource "azurerm_virtual_machine" "windows_vm" {
 
   provisioner "remote-exec" {
     inline = [
-      templatefile("${path.module}/scripts/windows-setup.ps1.tpl", { azuredevops_url = "${var.azuredevops_url}", azuredevops_pat = "${var.azuredevops_pat}", azuredevops_pool_hosts = "${var.azuredevops_pool_hosts}", win_agents_folder = "${var.win_agents_folder}" })
+      templatefile("${path.module}/scripts/windows-setup.ps1.tpl", { azuredevops_url = "${var.azuredevops_url}", azuredevops_pat = "${var.azuredevops_pat}", azuredevops_pool_hosts = "${var.azuredevops_pool_hosts}" })
     ]
     connection {
       type     = "winrm"
-      host     = azurerm_public_ip.vm[count.index].ip_address
+      host     = azurerm_public_ip.vm_windows[count.index].fqdn
       user     = var.vm_admin_username
       password = random_string.vm_admin_password.result
       port     = 5986

@@ -1,12 +1,22 @@
 param(
     $AZP_URL,
     $AZP_TOKEN,
-    $AZP_POOL,
-    $AgentsFolder
+    $AZP_POOL
 )
 
-mkdir $AgentsFolder
-cd $AgentsFolder
+# Format the data disk
+Get-Disk |
+where partitionstyle -eq 'raw' |
+Initialize-Disk -PartitionStyle MBR -PassThru |
+New-Partition -DriveLetter 'F' -UseMaximumSize |
+Format-Volume -FileSystem NTFS -NewFileSystemLabel "datadisk" -Confirm:$false
+
+mkdir F:\docker-data
+'{ "data-root": "F:\\docker-data", "storage-opts": ["size=120GB"] }' | Out-File -Encoding Ascii -Filepath "C:\ProgramData\docker\config\daemon.json"
+Restart-Service docker
+
+mkdir F:\Temp
+pushd F:\Temp
 
 # Install PowerShell 6
 $pkg = 'PowerShell-6.2.1-win-x64.msi'
@@ -30,9 +40,11 @@ if ((Get-FileHash $pkg -Algorithm sha256).Hash -eq '0c314a62f0f242c64fe1bdae20ab
 $pkg = 'vsts-agent-win-x64-2.154.1.zip'
 curl -OutFile $pkg https://vstsagentpackage.azureedge.net/agent/2.154.1/$pkg
 if ((Get-FileHash $pkg -Algorithm sha256).Hash -eq '67634CC6B9D0A7F373940F08E6F76FE8A04CE3B765FAF9E693836F35289A08B1') {
-    Expand-Archive -Path $pkg -DestinationPath ${AgentsFolder}\A1
-    cd ${AgentsFolder}\A1
+    Expand-Archive -Path $pkg -DestinationPath F:\Agents\A1
+    cd F:\Agents\A1
     .\config.cmd  --unattended --url $AZP_URL --auth pat --token $AZP_TOKEN --pool $AZP_POOL --agent $env:COMPUTERNAME --replace --acceptTeeEula --runAsService --windowsLogonAccount "NT AUTHORITY\SYSTEM"
 } else {
     Write-Error "Downloaded package doesn't match the hash!"
 }
+
+popd

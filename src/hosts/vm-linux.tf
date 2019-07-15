@@ -3,7 +3,7 @@ resource "azurerm_virtual_machine" "linux_vm" {
   name                             = "${var.env_name}-linux${count.index + 1}-vm"
   location                         = azurerm_resource_group.pyp.location
   resource_group_name              = azurerm_resource_group.pyp.name
-  network_interface_ids            = [azurerm_network_interface.vm[var.num_windows_hosts + count.index].id]
+  network_interface_ids            = [azurerm_network_interface.vm_linux[count.index].id]
   vm_size                          = "Standard_B2s"
   delete_os_disk_on_termination    = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
   delete_data_disks_on_termination = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
@@ -43,7 +43,7 @@ resource "azurerm_virtual_machine" "linux_vm" {
     destination = "/tmp/ubuntu-setup.sh"
     connection {
       type     = "ssh"
-      host     = azurerm_public_ip.vm[var.num_windows_hosts + count.index].ip_address
+      host     = azurerm_public_ip.vm_linux[count.index].fqdn
       user     = var.vm_admin_username
       password = random_string.vm_admin_password.result
     }
@@ -56,7 +56,7 @@ resource "azurerm_virtual_machine" "linux_vm" {
     ]
     connection {
       type     = "ssh"
-      host     = azurerm_public_ip.vm[var.num_windows_hosts + count.index].ip_address
+      host     = azurerm_public_ip.vm_linux[count.index].fqdn
       user     = var.vm_admin_username
       password = random_string.vm_admin_password.result
     }

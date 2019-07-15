@@ -20,3 +20,7 @@ data "azurerm_client_config" "current" {}
 provider "random" {
   version = "~> 2.1"
 }
+
+provider "external" {
+  version = "~> 1.2"
+}
