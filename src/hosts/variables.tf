@@ -17,6 +17,14 @@ variable "num_linux_hosts" {
   default = 1
 }
 
+variable "vm_size" {
+  default = "Standard_B1"
+}
+
+variable "vm_disk_type" {
+  default = "Standard_LRS"
+}
+
 variable "vm_admin_username" {
   description = "Username for the Administrator account"
   default     = "hostadmin"

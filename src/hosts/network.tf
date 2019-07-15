@@ -23,22 +23,22 @@ resource "azurerm_subnet" "vm_linux_subnet" {
 
 resource "azurerm_public_ip" "vm_windows" {
   count               = var.num_windows_hosts
-  name                = "${var.env_name}-winhost${count.index+1}-publicip"
+  name                = "${var.env_name}-winhost${count.index + 1}-publicip"
   location            = azurerm_resource_group.pyp.location
   resource_group_name = azurerm_resource_group.pyp.name
   allocation_method   = "Dynamic"
-  domain_name_label   = "${var.env_name}-winhost${count.index+1}"
+  domain_name_label   = "${var.env_name}-winhost${count.index + 1}"
 
   tags = local.tags
 }
 
 resource "azurerm_public_ip" "vm_linux" {
   count               = var.num_linux_hosts
-  name                = "${var.env_name}-linuxhost${count.index+1}-publicip"
+  name                = "${var.env_name}-linuxhost${count.index + 1}-publicip"
   location            = azurerm_resource_group.pyp.location
   resource_group_name = azurerm_resource_group.pyp.name
   allocation_method   = "Dynamic"
-  domain_name_label   = "${var.env_name}-linuxhost${count.index+1}"
+  domain_name_label   = "${var.env_name}-linuxhost${count.index + 1}"
 
   tags = local.tags
 }

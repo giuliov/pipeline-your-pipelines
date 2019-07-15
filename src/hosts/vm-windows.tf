@@ -4,7 +4,7 @@ resource "azurerm_virtual_machine" "windows_vm" {
   location                         = azurerm_resource_group.pyp.location
   resource_group_name              = azurerm_resource_group.pyp.name
   network_interface_ids            = [azurerm_network_interface.vm_windows[count.index].id]
-  vm_size                          = "Standard_B2s"
+  vm_size                          = var.vm_size
   delete_os_disk_on_termination    = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
   delete_data_disks_on_termination = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
 
@@ -16,16 +16,18 @@ resource "azurerm_virtual_machine" "windows_vm" {
   }
 
   storage_os_disk {
-    name          = "${var.env_name}-win${count.index + 1}-osdisk"
-    caching       = "ReadWrite"
-    create_option = "FromImage"
+    name              = "${var.env_name}-win${count.index + 1}-osdisk"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = var.vm_disk_type
   }
 
   storage_data_disk {
-    name          = "${var.env_name}-win${count.index + 1}-datadisk"
-    create_option = "Empty"
-    lun           = 0
-    disk_size_gb  = "50"
+    name              = "${var.env_name}-win${count.index + 1}-datadisk"
+    create_option     = "Empty"
+    lun               = 0
+    disk_size_gb      = "50"
+    managed_disk_type = var.vm_disk_type
   }
 
   os_profile {

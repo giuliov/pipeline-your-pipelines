@@ -12,17 +12,17 @@ output "vm_admin_password" {
 }
 
 output "vm_windows_dns" {
-  value = azurerm_public_ip.vm_windows.*.fqdn 
+  value = azurerm_public_ip.vm_windows.*.fqdn
 }
 
 output "vm_windows_public_ip" {
-  value = azurerm_public_ip.vm_windows.*.ip_address 
+  value = azurerm_public_ip.vm_windows.*.ip_address
 }
 
 output "vm_linux_dns" {
-  value = azurerm_public_ip.vm_linux.*.fqdn 
+  value = azurerm_public_ip.vm_linux.*.fqdn
 }
 
 output "vm_linux_public_ip" {
-  value = azurerm_public_ip.vm_linux.*.ip_address 
+  value = azurerm_public_ip.vm_linux.*.ip_address
 }
