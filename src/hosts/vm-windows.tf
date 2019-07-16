@@ -34,6 +34,8 @@ resource "azurerm_virtual_machine" "windows_vm" {
     computer_name  = "${upper(local.env_name_nosymbols)}WIN${count.index + 1}" # 16 chars
     admin_username = var.vm_admin_username
     admin_password = random_string.vm_admin_password.result
+    # Careful to stay within 64 KB limit for the custom data block
+    custom_data    = "Param($ComputerName = \"${upper(local.env_name_nosymbols)}WIN${count.index + 1}\") ${file("${path.module}/scripts/winrm.ps1")}"
   }
 
   os_profile_secrets {
@@ -49,13 +51,12 @@ resource "azurerm_virtual_machine" "windows_vm" {
     provision_vm_agent        = true
     enable_automatic_upgrades = false
 
-    /*
     winrm {
       protocol        = "HTTPS"
       certificate_url = azurerm_key_vault_certificate.win_vm[count.index].secret_id
     }
-    */
 
+/*
     # Auto-Login's required to configure WinRM
     additional_unattend_config {
       pass         = "oobeSystem"
@@ -71,15 +72,16 @@ resource "azurerm_virtual_machine" "windows_vm" {
       setting_name = "FirstLogonCommands"
       content      = file("${path.module}/scripts/FirstLogonCommands.xml")
     }
+*/
   }
 
-  /*
   provisioner "file" {
     source      = "${path.module}/scripts/windows-setup.ps1"
     destination = "C:\\terraform\\windows-setup.ps1"
 
     connection {
       type     = "winrm"
+      host     = azurerm_public_ip.vm_windows[count.index].fqdn
       user     = var.vm_admin_username
       password = random_string.vm_admin_password.result
       port     = 5986
@@ -93,28 +95,9 @@ resource "azurerm_virtual_machine" "windows_vm" {
 
   provisioner "remote-exec" {
     inline = [
-      "C:\\terraform\\windows-setup.ps1 -AZP_URL ${var.azuredevops_url} -AZP_TOKEN ${var.azuredevops_pat} -AZP_POOL ${var.azuredevops_pool_hosts} -AgentsFolder ${var.win_agents_folder}",
+      "C:\\terraform\\windows-setup.ps1 -AZP_URL ${var.azuredevops_url} -AZP_TOKEN ${var.azuredevops_pat} -AZP_POOL ${var.azuredevops_pool_hosts}",
     ]
 
-    connection {
-      type     = "winrm"
-      host     = self.public_ip
-      user     = var.vm_admin_username
-      password = random_string.vm_admin_password.result
-      port     = 5986
-      https    = true
-      timeout  = "10m"
-
-      # NOTE: if you're using a real certificate, rather than a self-signed one, you'll want this set to `false`/to remove this.
-      insecure = true
-    }
-  }
-  */
-
-  provisioner "remote-exec" {
-    inline = [
-      templatefile("${path.module}/scripts/windows-setup.ps1.tpl", { azuredevops_url = "${var.azuredevops_url}", azuredevops_pat = "${var.azuredevops_pat}", azuredevops_pool_hosts = "${var.azuredevops_pool_hosts}" })
-    ]
     connection {
       type     = "winrm"
       host     = azurerm_public_ip.vm_windows[count.index].fqdn
