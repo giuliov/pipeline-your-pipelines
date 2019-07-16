@@ -3,6 +3,11 @@ data "external" "client_ip" {
   program = ["curl", "https://api.ipify.org/?format=json"]
 }
 
+locals {
+  network_security_rule_base_priority = 2000
+}
+
+
 resource "azurerm_network_security_group" "vm_windows" {
   name                = "${var.env_name}-vm-windows-sg"
   location            = azurerm_resource_group.pyp.location
@@ -17,7 +22,7 @@ resource "azurerm_network_security_group" "vm_linux" {
 
 resource "azurerm_network_security_rule" "vm_windows_rdp_in" {
   name                        = "${var.env_name}-rdp-in"
-  priority                    = "2000"
+  priority                    = local.network_security_rule_base_priority
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
@@ -31,7 +36,7 @@ resource "azurerm_network_security_rule" "vm_windows_rdp_in" {
 
 resource "azurerm_network_security_rule" "vm_windows_winrm_in" {
   name                        = "${var.env_name}-winrm-in"
-  priority                    = "2100"
+  priority                    = azurerm_network_security_rule.vm_windows_rdp_in.priority + 100
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"
@@ -45,7 +50,7 @@ resource "azurerm_network_security_rule" "vm_windows_winrm_in" {
 
 resource "azurerm_network_security_rule" "vm_linux_ssh_in" {
   name                        = "${var.env_name}-ssh-in"
-  priority                    = "2000"
+  priority                    = local.network_security_rule_base_priority
   direction                   = "Inbound"
   access                      = "Allow"
   protocol                    = "Tcp"

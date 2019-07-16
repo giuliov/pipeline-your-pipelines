@@ -32,14 +32,19 @@ variable "vm_admin_username" {
 
 variable "azuredevops_pat" {
   description = "Azure DevOps Personal Access Token with have Read & manage permission at Agent Pools scope."
-  default     = "PAT missing"
+  type        = string
+  default     = null
 }
 
 variable "azuredevops_url" {
   description = "Azure DevOps URL."
+  type        = string
+  default     = null
 }
 
 variable "azuredevops_pool_hosts" {
   description = "Azure DevOps Pool for Hosts."
+  type        = string
+  default     = null
 }
 
