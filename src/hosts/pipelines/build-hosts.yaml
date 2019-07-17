@@ -1,0 +1,33 @@
+trigger:
+  batch: true
+  paths:
+    include:
+      - src/hosts/*
+
+variables:
+  TERRAFORM_VERSION: '0.12.3'
+  TERRAFORM_WORKSPACE: 'dev'
+  TF_IN_AUTOMATION: true
+  AZURE_SUBSCRIPTION_ID: ''
+  AZURE_TENANT_ID: ''
+  AZURE_CLIENT_ID: ''
+  AZURE_CLIENT_SECRET: ''
+
+steps:
+- task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
+  displayName: 'Install Terraform $(TERRAFORM_VERSION)'
+  inputs:
+    terraformVersion: '$(TERRAFORM_VERSION)'
+- script: |
+   terraform init -no-color -input=false
+   # portable way to skip failing command
+   terraform workspace new -no-color $(TERRAFORM_WORKSPACE) || cd .
+   terraform workspace select -no-color $(TERRAFORM_WORKSPACE)
+   terraform apply -no-color -input=false -auto-approve
+  workingDirectory: '$(System.DefaultWorkingDirectory)/src/terraform'
+  displayName: 'Terraform apply in $(TERRAFORM_WORKSPACE) workspace'
+  env:
+    TF_VAR_azurerm_subscription_id: $(AZURE_SUBSCRIPTION_ID)
+    TF_VAR_azurerm_tenant_id: $(AZURE_TENANT_ID)
+    TF_VAR_azurerm_client_id: $(AZURE_CLIENT_ID)
+    TF_VAR_azurerm_client_secret: $(AZURE_CLIENT_SECRET)

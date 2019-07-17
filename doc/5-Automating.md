@@ -9,9 +9,11 @@ If you need a Terraform primer there is plenty of resources, from the excellent 
 
 
 
-## TODO 
+## Blueprinting
 Automated using Terraform/ARM
 - Docker Registry
 - Windows Hosts
 - Linux Hosts
+## Applying the blueprint
+TODO 
 
