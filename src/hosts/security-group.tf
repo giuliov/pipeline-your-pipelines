@@ -34,10 +34,24 @@ resource "azurerm_network_security_rule" "vm_windows_rdp_in" {
   name                        = "${var.env_name}-rdp-in"
   priority                    = local.network_security_rule_base_priority
   direction                   = "Inbound"
-  access                      = "Allow"
+  access                      = var.vm_public_access ? "Allow" : "Deny"
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "3389"
+  source_address_prefix       = data.external.client_ip.result["ip"]
+  destination_address_prefix  = azurerm_subnet.vm_windows_subnet.address_prefix
+  resource_group_name         = azurerm_resource_group.pyp.name
+  network_security_group_name = azurerm_network_security_group.vm_windows.name
+}
+
+resource "azurerm_network_security_rule" "vm_windows_ssh_in" {
+  name                        = "${var.env_name}-ssh-in"
+  priority                    = azurerm_network_security_rule.vm_windows_rdp_in.priority + 50
+  direction                   = "Inbound"
+  access                      = var.vm_public_access ? "Allow" : "Deny"
+  protocol                    = "Tcp"
+  source_port_range           = "*"
+  destination_port_range      = "22"
   source_address_prefix       = data.external.client_ip.result["ip"]
   destination_address_prefix  = azurerm_subnet.vm_windows_subnet.address_prefix
   resource_group_name         = azurerm_resource_group.pyp.name
@@ -48,7 +62,7 @@ resource "azurerm_network_security_rule" "vm_windows_winrm_in" {
   name                        = "${var.env_name}-winrm-in"
   priority                    = azurerm_network_security_rule.vm_windows_rdp_in.priority + 100
   direction                   = "Inbound"
-  access                      = "Allow"
+  access                      = var.vm_public_access ? "Allow" : "Deny"
   protocol                    = "Tcp"
   source_port_range           = "*"
   destination_port_range      = "5985-5986"

@@ -30,6 +30,12 @@ variable "vm_admin_username" {
   default     = "hostadmin"
 }
 
+variable "vm_public_access" {
+  type = bool
+  default = false
+}
+
+
 variable "azuredevops_pat" {
   description = "Azure DevOps Personal Access Token with have Read & manage permission at Agent Pools scope."
   type        = string

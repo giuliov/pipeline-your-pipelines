@@ -12,6 +12,8 @@ resource "azurerm_subnet" "vm_windows_subnet" {
   resource_group_name  = azurerm_resource_group.pyp.name
   virtual_network_name = azurerm_virtual_network.pyp.name
   address_prefix       = cidrsubnet(azurerm_virtual_network.pyp.address_space.0, 8, 1)
+  # Remove after upgrading AzureRM Provider 2.0 (see Issue #3289)
+  network_security_group_id = azurerm_network_security_group.vm_windows.id
 }
 
 resource "azurerm_subnet" "vm_linux_subnet" {
@@ -19,6 +21,8 @@ resource "azurerm_subnet" "vm_linux_subnet" {
   resource_group_name  = azurerm_resource_group.pyp.name
   virtual_network_name = azurerm_virtual_network.pyp.name
   address_prefix       = cidrsubnet(azurerm_virtual_network.pyp.address_space.0, 8, 2)
+  # Remove after upgrading AzureRM Provider 2.0 (see Issue #3289)
+  network_security_group_id = azurerm_network_security_group.vm_linux.id
 }
 
 resource "azurerm_public_ip" "vm_windows" {
