@@ -9,6 +9,7 @@ variables:
   TERRAFORM_WORKSPACE: 'dev'
   TF_IN_AUTOMATION: true
   # these variables are commented to remind that they must be defined through the web interface and marked secure
+  # TERRAFORM_REMOTE_TOKEN: ''
   # AZURE_SUBSCRIPTION_ID: ''
   # AZURE_TENANT_ID: ''
   # AZURE_CLIENT_ID: ''
@@ -21,8 +22,11 @@ steps:
   displayName: 'Install Terraform $(TERRAFORM_VERSION)'
   inputs:
     terraformVersion: '$(TERRAFORM_VERSION)'
+- task: DownloadSecureFile@1
+  inputs:
+    secureFile: 'backend.hcl'
 - script: |
-   terraform init -no-color -input=false
+   terraform init -no-color -input=false -backend-config="backend.hcl"
    # portable way to skip failing command
    terraform workspace new -no-color $(TERRAFORM_WORKSPACE) || cd .
    terraform workspace select -no-color $(TERRAFORM_WORKSPACE)
