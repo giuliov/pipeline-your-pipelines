@@ -31,7 +31,7 @@ variable "vm_admin_username" {
 }
 
 variable "vm_public_access" {
-  type = bool
+  type    = bool
   default = false
 }
 
