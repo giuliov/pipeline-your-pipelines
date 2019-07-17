@@ -26,7 +26,7 @@ steps:
   inputs:
     secureFile: 'backend.hcl'
 - script: |
-   terraform init -no-color -input=false -backend-config="backend.hcl"
+   terraform init -no-color -input=false -backend-config="$(System.DefaultWorkingDirectory)/backend.hcl"
    # portable way to skip failing command
    terraform workspace new -no-color $(TERRAFORM_WORKSPACE) || cd .
    terraform workspace select -no-color $(TERRAFORM_WORKSPACE)
