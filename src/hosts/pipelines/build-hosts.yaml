@@ -13,6 +13,8 @@ variables:
   # AZURE_TENANT_ID: ''
   # AZURE_CLIENT_ID: ''
   # AZURE_CLIENT_SECRET: ''
+  # AZUREDEVOPS_PAT: ''
+  PIPELINE_POOL: 'MakeAgents'
 
 steps:
 - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
@@ -32,3 +34,6 @@ steps:
     TF_VAR_azurerm_tenant_id: $(AZURE_TENANT_ID)
     TF_VAR_azurerm_client_id: $(AZURE_CLIENT_ID)
     TF_VAR_azurerm_client_secret: $(AZURE_CLIENT_SECRET)
+    TF_VAR_azuredevops_url: $(System.TeamFoundationCollectionUri)
+    TF_VAR_azuredevops_pat: $(AZUREDEVOPS_PAT)
+    TF_VAR_azuredevops_pool_hosts: $(PIPELINE_POOL)
