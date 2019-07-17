@@ -26,10 +26,10 @@ steps:
   inputs:
     secureFile: 'backend.hcl'
 - script: |
-   terraform init -no-color -input=false -backend-config="$(Agent.TempDirectory)/backend.hcl"
-   # portable way to skip failing command
    terraform workspace new -no-color $(TERRAFORM_WORKSPACE) || cd .
    terraform workspace select -no-color $(TERRAFORM_WORKSPACE)
+   terraform init -no-color -input=false -backend-config="$(Agent.TempDirectory)/backend.hcl"
+   # portable way to skip failing command
    terraform apply -no-color -input=false -auto-approve
   workingDirectory: '$(System.DefaultWorkingDirectory)/src/hosts/terraform'
   displayName: 'Terraform apply in $(TERRAFORM_WORKSPACE) workspace'
