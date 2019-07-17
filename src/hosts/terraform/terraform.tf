@@ -1,15 +1,10 @@
 terraform {
   required_version = "~> 0.12"
 
-  # you can change to Azure Storage or other remote storage
-  backend "remote" {
-    workspaces {
-      prefix = "pyp-"
-    }
-    hostname     = "app.terraform.io"
-    organization = "giuliov"
-  }
+  backend "remote" {} # configuration in backend.hcl
 }
+# Use option -backend-config
+#   terraform init -backend-config="backend.hcl"
 
 provider "azurerm" {
   version         = "~> 1.31"
