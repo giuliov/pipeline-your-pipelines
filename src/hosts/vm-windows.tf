@@ -35,7 +35,7 @@ resource "azurerm_virtual_machine" "windows_vm" {
     admin_username = var.vm_admin_username
     admin_password = random_string.vm_admin_password.result
     # Careful to stay within 64 KB limit for the custom data block
-    custom_data    = "Param($ComputerName = \"${upper(local.env_name_nosymbols)}WIN${count.index + 1}\") ${file("${path.module}/scripts/winrm.ps1")}"
+    custom_data = "Param($ComputerName = \"${upper(local.env_name_nosymbols)}WIN${count.index + 1}\") ${file("${path.module}/scripts/winrm.ps1")}"
   }
 
   os_profile_secrets {
@@ -56,7 +56,6 @@ resource "azurerm_virtual_machine" "windows_vm" {
       certificate_url = azurerm_key_vault_certificate.win_vm[count.index].secret_id
     }
 
-/*
     # Auto-Login's required to configure WinRM
     additional_unattend_config {
       pass         = "oobeSystem"
@@ -72,7 +71,6 @@ resource "azurerm_virtual_machine" "windows_vm" {
       setting_name = "FirstLogonCommands"
       content      = file("${path.module}/scripts/FirstLogonCommands.xml")
     }
-*/
   }
 
   provisioner "file" {
@@ -162,7 +160,13 @@ resource "azurerm_key_vault_certificate" "win_vm" {
       ]
 
       # MUST match azurerm_virtual_machine.os_profile.computer_name
-      subject            = "CN=${upper(local.env_name_nosymbols)}WIN${count.index + 1}"
+      subject = "CN=${upper(local.env_name_nosymbols)}WIN${count.index + 1}"
+      subject_alternative_names {
+        dns_names = [
+          azurerm_public_ip.vm_windows[count.index].fqdn,
+          "${var.env_name}-winhost${count.index + 1}"
+        ]
+      }
       validity_in_months = 12
     }
   }

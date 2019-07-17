@@ -5,3 +5,4 @@
 _plan
 .DS_Store
 backend.hcl
+.vscode
