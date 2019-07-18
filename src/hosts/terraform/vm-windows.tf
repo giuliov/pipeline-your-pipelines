@@ -11,7 +11,7 @@ resource "azurerm_virtual_machine" "windows_vm" {
   storage_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
-    sku       = "2019-Datacenter-smalldisk"
+    sku       = "2019-Datacenter-with-Containers-smalldisk" # 2019-Datacenter-Core-with-Containers-smalldisk
     version   = "latest" # CAVEAT: this is ok for demoing, for production specify a version
   }
 
