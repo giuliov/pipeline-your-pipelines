@@ -16,6 +16,14 @@ variables:
   # AZURE_CLIENT_SECRET: ''
   # AZUREDEVOPS_PAT: ''
   PIPELINE_POOL: 'MakeAgents'
+  ENV_NAME: "pyp-demo"
+  RESOURCE_GROUP_LOCATION: "northeurope"
+  NUM_WINDOWS_HOSTS: 1
+  NUM_LINUX_HOSTS: 1
+  VM_ADMIN_USERNAME: "hostadmin"
+  VM_SIZE: "Standard_B2s"
+  VM_DISK_TYPE: "Standard_LRS"
+  VM_PUBLIC_ACCESS: true
 
 steps:
 - task: charleszipp.azure-pipelines-tasks-terraform.azure-pipelines-tasks-terraform-installer.TerraformInstaller@0
@@ -40,3 +48,11 @@ steps:
     TF_VAR_azuredevops_url: $(System.TeamFoundationCollectionUri)
     TF_VAR_azuredevops_pat: $(AZUREDEVOPS_PAT)
     TF_VAR_azuredevops_pool_hosts: $(PIPELINE_POOL)
+    TF_VAR_env_name: $(ENV_NAME)
+    TF_VAR_resource_group_location: $(RESOURCE_GROUP_LOCATION)
+    TF_VAR_num_windows_hosts: $(NUM_WINDOWS_HOSTS)
+    TF_VAR_num_linux_hosts: $(NUM_LINUX_HOSTS)
+    TF_VAR_vm_admin_username: $(VM_ADMIN_USERNAME)
+    TF_VAR_vm_size: $(VM_SIZE)
+    TF_VAR_vm_disk_type: $(VM_DISK_TYPE)
+    TF_VAR_vm_public_access: $(VM_PUBLIC_ACCESS)
