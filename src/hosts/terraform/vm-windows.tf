@@ -31,7 +31,7 @@ resource "azurerm_virtual_machine" "windows_vm" {
   }
 
   os_profile {
-    computer_name  = "${upper(local.env_name_nosymbols)}WIN${count.index + 1}" # 16 chars
+    computer_name  = "${var.env_name}-win${count.index + 1}" # CAVEAT: Careful to stay within 16 chars limit
     admin_username = var.vm_admin_username
     admin_password = random_string.vm_admin_password.result
     # CAVEAT: Careful to stay within 64 KB limit for the custom data block
@@ -117,7 +117,7 @@ resource "azurerm_key_vault_certificate" "win_vm" {
       ]
 
       # MUST match azurerm_virtual_machine.os_profile.computer_name
-      subject = "CN=${upper(local.env_name_nosymbols)}WIN${count.index + 1}"
+      subject = "CN=${var.env_name}-win${count.index + 1}"
       subject_alternative_names {
         dns_names = [
           azurerm_public_ip.vm_windows[count.index].fqdn,
