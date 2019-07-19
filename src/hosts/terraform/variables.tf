@@ -7,6 +7,10 @@ variable "resource_group_location" {
   default = "westeurope"
 }
 
+variable "acr_sku" {
+  default = "Basic"
+}
+
 variable "num_windows_hosts" {
   type    = number
   default = 1

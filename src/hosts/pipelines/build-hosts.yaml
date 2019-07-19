@@ -16,13 +16,14 @@ variables:
   # AZURE_CLIENT_SECRET: ''
   # AZUREDEVOPS_PAT: ''
   PIPELINE_POOL: 'MakeAgents'
-  ENV_NAME: "pyp-demo"
-  RESOURCE_GROUP_LOCATION: "northeurope"
+  ENV_NAME: 'pyp-demo'
+  RESOURCE_GROUP_LOCATION: 'northeurope'
+  ACR_SKU: 'Basic'
   NUM_WINDOWS_HOSTS: 1
   NUM_LINUX_HOSTS: 1
-  VM_ADMIN_USERNAME: "hostadmin"
-  VM_SIZE: "Standard_B2s"
-  VM_DISK_TYPE: "Standard_LRS"
+  VM_ADMIN_USERNAME: 'hostadmin'
+  VM_SIZE: 'Standard_B2s'
+  VM_DISK_TYPE: 'Standard_LRS'
   VM_PUBLIC_ACCESS: true
 
 steps:
@@ -40,6 +41,7 @@ steps:
   workingDirectory: '$(System.DefaultWorkingDirectory)/src/hosts/terraform'
   displayName: 'Terraform apply in $(TERRAFORM_WORKSPACE) workspace'
   env:
+    # forward variables to Terraform
     TF_WORKSPACE: $(TERRAFORM_WORKSPACE)
     TF_VAR_azurerm_subscription_id: $(AZURE_SUBSCRIPTION_ID)
     TF_VAR_azurerm_tenant_id: $(AZURE_TENANT_ID)
@@ -56,3 +58,4 @@ steps:
     TF_VAR_vm_size: $(VM_SIZE)
     TF_VAR_vm_disk_type: $(VM_DISK_TYPE)
     TF_VAR_vm_public_access: $(VM_PUBLIC_ACCESS)
+    TF_VAR_acr_sku: $(ACR_SKU)
