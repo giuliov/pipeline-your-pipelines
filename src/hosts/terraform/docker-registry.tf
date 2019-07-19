@@ -6,4 +6,8 @@ resource "azurerm_container_registry" "pyp" {
   admin_enabled       = false
 
   tags = local.tags
+  
+  lifecycle {
+    prevent_destroy = true
+  }
 }
