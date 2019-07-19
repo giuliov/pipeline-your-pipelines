@@ -7,7 +7,7 @@ AZP_POOL=$3
 
 sudo apt-get install -y docker.io
 ## see https://docs.docker.com/install/linux/linux-postinstall/
-##sudo usermod -aG docker $USER
+sudo usermod -aG docker $USER
 
 # install Powershell 6
 # see https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-6
