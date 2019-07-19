@@ -4,7 +4,10 @@
 TODO
 The check for running container works for a single host!
 There is no load balancing!
-Use Capabilities to partition and organise your agent within a platform.
+Strategies:
+1. Run all agent flavours on all hosts
+2. Use Capabilities to partition and organise your agent within a platform.
+3. Stop managing your Hosts and use Kubernetes
 
 ## Running builds
 TODO
