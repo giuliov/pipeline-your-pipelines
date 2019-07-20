@@ -27,7 +27,7 @@ resource "azurerm_key_vault" "pyp" {
   }
 
   tags = local.tags
-  
+
   lifecycle {
     prevent_destroy = true
   }
