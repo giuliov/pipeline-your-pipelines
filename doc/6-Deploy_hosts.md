@@ -103,6 +103,8 @@ resource "azurerm_key_vault" "pyp" {
 }
 ```
 
+TODO password in TF State
+
 ## Applying the blueprint
 TODO 
 
