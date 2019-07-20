@@ -40,29 +40,35 @@ resource "azurerm_virtual_machine" "linux_vm" {
     disable_password_authentication = false
   }
 
-  provisioner "file" {
-    source      = "${path.module}/scripts/ubuntu-setup.sh"
-    destination = "/tmp/ubuntu-setup.sh"
-    connection {
-      type     = "ssh"
-      host     = azurerm_public_ip.vm_linux[count.index].fqdn
-      user     = var.vm_admin_username
-      password = random_string.vm_admin_password.result
-    }
-  }
+  tags = local.tags
+}
 
-  provisioner "remote-exec" {
-    inline = [
-      "chmod +x /tmp/ubuntu-setup.sh",
-      "/tmp/ubuntu-setup.sh ${var.azuredevops_url} ${var.azuredevops_pat} ${var.azuredevops_pool_hosts}",
-    ]
-    connection {
-      type     = "ssh"
-      host     = azurerm_public_ip.vm_linux[count.index].fqdn
-      user     = var.vm_admin_username
-      password = random_string.vm_admin_password.result
+locals {
+  ubuntu_setup = templatefile(
+    "${path.module}/scripts/ubuntu-setup.sh.tpl",
+    {
+      azuredevops_url        = "${var.azuredevops_url}",
+      azuredevops_pat        = "${var.azuredevops_pat}",
+      azuredevops_pool_hosts = "${var.azuredevops_pool_hosts}"
     }
-  }
+  )
+  ubuntu_setup_base64 = base64encode(local.ubuntu_setup)
+}
 
+
+resource "azurerm_virtual_machine_extension" "linux_vm" {
+  count                = var.num_linux_hosts
+  name                 = "${var.env_name}-linux${count.index + 1}-vmext"
+  location             = azurerm_resource_group.pyp.location
+  resource_group_name  = azurerm_resource_group.pyp.name
+  virtual_machine_name = azurerm_virtual_machine.linux_vm[count.index].name
+  publisher            = "Microsoft.Azure.Extensions"
+  type                 = "CustomScript"
+  type_handler_version = "2.0"
+  protected_settings   = <<PROTECTED_SETTINGS
+    {
+      "script": "${local.ubuntu_setup_base64}"
+    }
+PROTECTED_SETTINGS
   tags = local.tags
 }
