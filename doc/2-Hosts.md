@@ -1,18 +1,6 @@
 # Meta-pipelines - Part 1 - Docker Hosts
 
-Imagine yourself in the scenario of an independent team responsible to maintain its own build pipeline.
-Typical solutions are:
 
-1. grab a leftover desktop or server machine
-2. ask the IT department for a virtual machine
-3. buy a VM in the cloud
-4. use the standard hosted agents provided by Azure Pipelines
-
-These solutions share some common problems.
-What if we need to go back in time, five years from today and build an old version of software? Probably these machines are lost or they evolved and do not contain the same version of software.
-Or maybe I need to use the latest and greatest for one build but have to run an older version of our toolchain to support laggard customers?
-
-Docker can solve the problem by guaranteeing a good degree of reproducibility: we can be very specify about the software we install and furthermore keep any previously used image in a safe location.
 The first step will be to setup an environment where we can run Docker and is the topic for this instalment.
 
 We need at least two kind of hosts: a Windows and a Linux machines. Simple reason: you cannot run Windows containers on a Linux host, also running Linux containers on a Windows machine is inefficient (they truly run inside a virtual machine).
@@ -42,6 +30,8 @@ You can additionally restrict permission to this and avoid queueing normal build
 I find convenient using a Personal Access Token (PAT from now on) to setup the agents.
 
 ![Add a PAT with proper permission](./images/MakeAgents-PAT.png)
+
+You may wonder why using a separate Pool. This queue will be dedicated to agents on _hosts_ to run "meta"-pipelines. They requires local admin permissions and have no build toolchain, just Docker, so any normal build will fail.
 
 
 

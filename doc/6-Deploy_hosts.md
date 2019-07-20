@@ -77,7 +77,9 @@ azuredevops_pool_hosts | Azure DevOps Pool for Hosts | —
 (1) Default size is the cheapest, which may not be adequate for production usage.
 (2) Must have Read & manage permission at Agent Pools scope.
 
-The name of the Registry and the KeyVault must be unique in the whole Azure; to guarantee it we add a random 6 character string to the name. In addition this must not contain any punctuation symbol, so we clean the base environment name.
+Additional tuning require changing the Terraform source code.
+
+Some resource names are global to the whole Azure because they become part of DNS names; in our case the Registry (ACR) and KeyVault must be unique. To guarantee this we add a random 6 character string to the base name; in addition punctuation symbols are forbidden. Here is the code for it.
 
 ```terraform
 resource "random_id" "env_name" {
@@ -103,7 +105,16 @@ resource "azurerm_key_vault" "pyp" {
 }
 ```
 
+The _keepers_ argument ties the generation of a new random number to `env_name` value. Only if this latter changes, a new number is generated.
+
+For configuring the virtual machines
+
+
 TODO password in TF State
+
+
+
+
 
 ## Applying the blueprint
 TODO 
