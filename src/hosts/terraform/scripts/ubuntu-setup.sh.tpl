@@ -1,24 +1,41 @@
 #!/bin/bash
+set -x # debug
 set -e
 
 AZP_URL=${azuredevops_url}
 AZP_TOKEN=${azuredevops_pat}
 AZP_POOL=${azuredevops_pool_hosts}
 
-export AGENT_ALLOW_RUNASROOT=1
+# mount data disk
+parted --script /dev/sdc mklabel gpt
+parted --script --align optimal /dev/sdc mkpart primary 0% 100%
+blockdev --rereadpt -v /dev/sdc
+mke2fs -q -t ext4 -L "dockerdata" /dev/sdc1
+mkdir -p /docker-data
+echo "UUID=$(blkid | grep /dev/sdc1 | cut -d\" -f4)   /docker-data   ext4   defaults,nofail   1   2" >> /etc/fstab
+mount -a
+
 export DEBIAN_FRONTEND=noninteractive
 
-sudo apt-get install -qy docker.io
+apt-get -qq -o=Dpkg::Use-Pty=0 install -qy docker.io
+# move docker working directory
+chown root:root /docker-data && chmod 701 /docker-data
+cat >/etc/docker/daemon.json <<EOL
+{
+    "data-root": "/docker-data"
+}
+EOL
+service docker restart
 ## see https://docs.docker.com/install/linux/linux-postinstall/
-sudo usermod -aG docker $(whoami)
+usermod -aG docker $(whoami)
 
 # install Powershell 6
 # see https://docs.microsoft.com/en-us/powershell/scripting/install/installing-powershell-core-on-linux?view=powershell-6
 wget -q https://packages.microsoft.com/config/ubuntu/18.04/packages-microsoft-prod.deb
-sudo dpkg -i packages-microsoft-prod.deb
-sudo apt-get update -qy
-sudo add-apt-repository -y universe
-sudo apt-get install -qy powershell
+dpkg -i packages-microsoft-prod.deb
+apt-get -qq -o=Dpkg::Use-Pty=0 update -qy
+add-apt-repository -y universe
+apt-get -qq -o=Dpkg::Use-Pty=0 install -qy powershell
 
 unset DEBIAN_FRONTEND
 
@@ -32,11 +49,8 @@ fi
 mkdir pipeline-agent
 cd pipeline-agent
 tar zxvf ../vsts-agent-linux-x64-2.153.2.tar.gz
-echo AAA AGENT DOWNLOADED
-sudo ./bin/installdependencies.sh
-echo AAA DEPENDENCIES INSTALLED
+# ./bin/installdependencies.sh
+export AGENT_ALLOW_RUNASROOT=1
 ./config.sh --unattended --url $AZP_URL --auth pat --token $AZP_TOKEN --pool $AZP_POOL --agent $(hostname) --replace --acceptTeeEula
-echo AAA SETTING UP AGENT SERVICE
-sudo ./svc.sh install
-sudo ./svc.sh start
-echo AAA AGENT INSTALLED
+./svc.sh install
+./svc.sh start
