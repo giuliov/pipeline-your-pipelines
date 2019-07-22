@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x # debug
+#set -x # uncomment to debug
 set -e
 
 AZP_URL=${azuredevops_url}

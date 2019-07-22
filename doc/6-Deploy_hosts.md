@@ -107,17 +107,132 @@ resource "azurerm_key_vault" "pyp" {
 
 The _keepers_ argument ties the generation of a new random number to `env_name` value. Only if this latter changes, a new number is generated.
 
-For configuring the virtual machines
+To configure the virtual machines we use an initialization script: `windows-setup.ps1` and `ubuntu-setup.sh`.
 
+They are similar in following these steps:
+1. Preparing the data disk
+2. Installing Docker
+3. Reconfiguring the Docker daemon to use the data volume for its operations
+4. Install PowerShell 6 & Git
+5. Install and configure the Azure Pipelines Agent
 
-TODO password in TF State
+### Launching Windows setup
 
+The fragment that launches the setup script uses OOBE, a native Windows mechanism for initial OS configuration.
 
+```terraform
+resource "azurerm_virtual_machine" "windows_vm" {
+  os_profile {
+    # CAVEAT: Careful to stay within 64 KB limit for the custom data block
+    custom_data = "Param($AZP_URL='${var.azuredevops_url}',$AZP_TOKEN='${var.azuredevops_pat}',$AZP_POOL='${var.azuredevops_pool_hosts}') ${file("${path.module}/scripts/windows-setup.ps1")}"
+  }
 
+  os_profile_windows_config {
+    # Auto-Login's required to configure machine
+    additional_unattend_config {
+      pass         = "oobeSystem"
+      component    = "Microsoft-Windows-Shell-Setup"
+      setting_name = "AutoLogon"
+      content      = "<AutoLogon><Password><Value>${random_string.vm_admin_password.result}</Value></Password><Enabled>true</Enabled><LogonCount>1</LogonCount><Username>${var.vm_admin_username}</Username></AutoLogon>"
+    }
+
+    additional_unattend_config {
+      pass         = "oobeSystem"
+      component    = "Microsoft-Windows-Shell-Setup"
+      setting_name = "FirstLogonCommands"
+      content      = file("${path.module}/scripts/FirstLogonCommands.xml")
+    }
+  }
+  # ... omissis ...
+```
+
+`path.module` translates to the directory there is located the Terraform source.
+
+`FirstLogonCommands.xml` lists a few actions to take, the last one launches our powershell script.
+
+```xml
+<FirstLogonCommands>
+    <SynchronousCommand>
+        <CommandLine>cmd /c "mkdir C:\terraform"</CommandLine>
+        <Description>Create the Terraform working directory</Description>
+        <Order>11</Order>
+    </SynchronousCommand>
+    <SynchronousCommand>
+        <CommandLine>cmd /c "copy C:\AzureData\CustomData.bin C:\terraform\windows-setup.ps1"</CommandLine>
+        <Description>Move the CustomData file to the working directory</Description>
+        <Order>12</Order>
+    </SynchronousCommand>
+    <SynchronousCommand>
+        <CommandLine>powershell.exe -sta -ExecutionPolicy Unrestricted -file C:\terraform\windows-setup.ps1</CommandLine>
+        <Description>Execute the System Configuration script</Description>
+        <Order>13</Order>
+    </SynchronousCommand>
+</FirstLogonCommands>
+```
+
+This technique works fine in simple scenario like ours, which uses small script, as the `custom_data` has a hard limit of 64KB.
+
+### Windows setup
+
+The script is long but trivial; one interesting line is the Docker `storage-opts` configuration parameter tuned for Windows images, typically bigger than Linux images.
+
+```Powershell
+'{ "data-root": "F:\\docker-data", "storage-opts": ["size=120GB"] }' | Out-File -Encoding Ascii -Filepath "C:\ProgramData\docker\config\daemon.json"
+Restart-Service docker
+```
+
+### Launching Linux setup
+
+Linux VM in Azure cannot use custom data and should go for [Custom Script Extension](https://docs.microsoft.com/en-us/azure/virtual-machines/extensions/custom-script-linux) instead. This translates to the `azurerm_virtual_machine_extension` Terraform resource.
+
+I opted for the script property, fed by a template file base-64 encoded, to avoid managing upload of scripts and storage handling.
+
+```terraform
+  protected_settings   = <<PROTECTED_SETTINGS
+    {
+      "script": "${local.ubuntu_setup_base64}"
+    }
+PROTECTED_SETTINGS
+```
+
+### Linux setup
+
+This script has a few tricks:
+- `set -e` to fail at first error and `-x` to log every command
+- `blockdev --rereadpt` to make the new partitioned disk visible
+- `-qq -o=Dpkg::Use-Pty=0` to minimize apt-get logging
+- `export DEBIAN_FRONTEND=noninteractive` to avoid prompting from apt-get
+- `export AGENT_ALLOW_RUNASROOT=1`
+
+`${`...`}` expression are evaluated by Terraform: this means that the file has secrets in plain text.
 
 
 ## Applying the blueprint
-TODO 
+
+With the Terraform code in hand, we need something to run it with the proper configuration. What's better than an Azure Pipeline? Great! The requirement list includes:
+- the Hosted Agents has Terraform, but we need the latest 0.12
+- credentials for Terraform remote state
+- Azure credentials to pass on to Terraform
+- values for Terraform variables
+- settings to pass the new agent so it can connect to Azure Pipelines
+
+This is how each requirement is handled:
+
+- the [Terraform Installer Task](https://marketplace.visualstudio.com/items?itemName=charleszipp.azure-pipelines-tasks-terraform) makes sure that the right version of Terraform is installed and the `TERRAFORM_VERSION` says which version 
+- `backend.hcl` is a [secure file](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files) configures Terraform remote state
+```
+workspaces {
+  prefix = "pyp-"
+}
+hostname     = "app.terraform.io"
+organization = "myorganisation"
+token        = "**************"
+```
+- Four variables (`AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`) defines the Azure credentials for Terraform, see [Argument](https://www.terraform.io/docs/providers/azurerm/index.html#argument-reference)
+- Two variables `AZUREDEVOPS_PAT` and `PIPELINE_POOL` configures the agent
+- the remaining variables set Terraform variables
+
+Here is the Yaml pipeline
 
 ```yaml
 variables:
@@ -152,7 +267,6 @@ steps:
     terraformVersion: '$(TERRAFORM_VERSION)'
 - script: |
    terraform init -no-color -input=false -backend-config="$(Agent.TempDirectory)/backend.hcl"
-   # portable way to skip failing command
    terraform apply -no-color -input=false -auto-approve
   workingDirectory: '$(System.DefaultWorkingDirectory)/src/hosts/terraform'
   displayName: 'Terraform apply in $(TERRAFORM_WORKSPACE) workspace'
@@ -178,7 +292,21 @@ steps:
 ```
 
 This pipeline may looks complex but it is just four activities:
-1. download a file with Terraform remote configuration
+1. download the file with Terraform remote configuration
 2. get the correct version of Terraform
 3. `terraform init`
 4. `terraform apply`
+
+Terraform _init_ is the first command to run before any other meaningful command can be used: it downloads providers used in code and configures state. State must be remote (by default uses a local file) as the machine running this pipeline can change at each execution.
+I used the [recently announced](https://www.hashicorp.com/blog/introducing-terraform-cloud-remote-state-management) Remote State Management feature of Terraform Cloud, but you can change to Azure Storage as well.
+_apply_ does all the heavy lifting, comparing the definitions in Terraform source code and the resources in Azure.
+
+Wow, we have a pipeline that deploy hosts to run pipelines that deploy docker containers to run the usual build pipelines!
+
+
+## Secrets
+
+One note of caution: in this example secrets and password are accessible reading environment variables and saved in clear text in TF State.
+
+
+
