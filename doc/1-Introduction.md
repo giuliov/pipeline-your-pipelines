@@ -35,16 +35,16 @@ While in this series I demonstrate the techniques using Azure, they can be used 
 
 The plan for the series is the following:
 
-[1. Introduction](./doc/1-Introduction.md) (_this page_)<br/>
-[2. Docker Hosts](./doc/2-Hosts.md)<br/>
-[3. Dockerize the agent](./doc/3-Dockerfile.md)<br/>
-[4. Build and Registry](./doc/4-Build_images.md)<br/>
-[5. Deploy and Run agent](./doc/5-Deploy_images.md)<br/>
-[6. Automating the Host Environments](./doc/6-Deploy_hosts.md)<br/>
-7. Host agents in Kubernetes[](./doc/7-Kubernetes.md) (_planned_)<br/>
-8. Automating the Kubernetes Environments[](./doc/8-Deploy_clusters.md) (_planned_)<br/>
-9. Scaling Hosts[](./doc/9-Scaling_hosts.md) (_planned_)<br/>
-10. Organising code and resources[](./doc/10-Organising_code.md) (_planned_)<br/>
+[1. Introduction](./1-Introduction.md) (_this page_)<br/>
+[2. Docker Hosts](./2-Hosts.md)<br/>
+[3. Dockerize the agent](./3-Dockerfile.md)<br/>
+[4. Build and Registry](./4-Build_images.md)<br/>
+[5. Deploy and Run agent](./5-Deploy_images.md)<br/>
+[6. Automating the Host Environments](./6-Deploy_hosts.md)<br/>
+7. Host agents in Kubernetes[](./7-Kubernetes.md) (_planned_)<br/>
+8. Automating the Kubernetes Environments[](./8-Deploy_clusters.md) (_planned_)<br/>
+9. Scaling Hosts[](./9-Scaling_hosts.md) (_planned_)<br/>
+10. Organising code and resources[](./10-Organising_code.md) (_planned_)<br/>
 
 You can go in sequential order or select a different path if you are not interested in managing the host machines, as depicted in the flowchart.
 
