@@ -8,9 +8,12 @@ If you need a Terraform primer there is plenty of resources, from the excellent 
 
 
 
+
 ## Blueprinting
 
 Terraform will provision the virtual machines to host our Docker containers. The full source code is in the [repository](https://github.com/giuliov/pipeline-your-pipelines), here we will highlight and comment some major points to avoid listing all 500+ lines of code.
+
+Note that I used Terraform 0.12 which allows for a different, more elegant language grammar.
 
 ### Azure Architecture
 
@@ -228,9 +231,12 @@ hostname     = "app.terraform.io"
 organization = "myorganisation"
 token        = "**************"
 ```
+![Secure file](./images/secure-file.png)
 - Four variables (`AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`) defines the Azure credentials for Terraform, see [Argument](https://www.terraform.io/docs/providers/azurerm/index.html#argument-reference)
 - Two variables `AZUREDEVOPS_PAT` and `PIPELINE_POOL` configures the agent
 - the remaining variables set Terraform variables
+
+![Pipeline variables](./images/terraform-pipeline-vars.png)
 
 Here is the Yaml pipeline
 
