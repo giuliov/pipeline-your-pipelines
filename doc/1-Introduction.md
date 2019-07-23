@@ -35,12 +35,12 @@ While in this series I demonstrate the techniques using Azure, they can be used 
 
 The plan for the series is the following:
 
-[1. Introduction](./doc/1-Introduction.md) (_in progress_)<br/>
+[1. Introduction](./doc/1-Introduction.md) (_this page_)<br/>
 [2. Docker Hosts](./doc/2-Hosts.md)<br/>
 [3. Dockerize the agent](./doc/3-Dockerfile.md)<br/>
 [4. Build and Registry](./doc/4-Build_images.md)<br/>
 [5. Deploy and Run agent](./doc/5-Deploy_images.md)<br/>
-[6. Automating the Host Environments](./doc/6-Deploy_hosts.md) (_in progress_)<br/>
+[6. Automating the Host Environments](./doc/6-Deploy_hosts.md)<br/>
 7. Host agents in Kubernetes[](./doc/7-Kubernetes.md) (_planned_)<br/>
 8. Automating the Kubernetes Environments[](./doc/8-Deploy_clusters.md) (_planned_)<br/>
 9. Scaling Hosts[](./doc/9-Scaling_hosts.md) (_planned_)<br/>
