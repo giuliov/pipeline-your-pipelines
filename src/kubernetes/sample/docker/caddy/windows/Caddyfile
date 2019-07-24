@@ -1,0 +1,4 @@
+:80
+templates
+log stdout
+root C:\wwwroot

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Docker Templated Example</title>
+    <link href="css/style.css" type="text/css" rel="stylesheet" />
+</head>
+
+<body>
+    <h1>Hi from Caddy!</h1>
+    <p>
+        Welcome <code>{{.IP}}</code>! You're visiting <b>{{.URI}}</b>.
+    </p>
+    <p>
+        Today on <i>{{.Env.COMPUTERNAME}}</i> is {{.Now "Monday, 2 Jan 2006"}}.
+    </p>
+</body>
+
+</html>

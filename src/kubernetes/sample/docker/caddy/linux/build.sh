@@ -1,0 +1,1 @@
+docker build -t caddy-test:linux -t caddy-test:v1.0.1 .
