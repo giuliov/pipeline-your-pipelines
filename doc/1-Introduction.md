@@ -31,6 +31,21 @@ The plan is to dockerize Azure Pipelines Agents, so they can be quickly rebuilt 
 While in this series I demonstrate the techniques using Azure, they can be used on-premise or translated for a different cloud provider.
 
 
+## I do not have this problem
+
+If you are not facing this scenario — whatever build agents the pipeline gives to you, satisfies your needs — you can still learn a lot about trendy technologies in a practical context. We will demonstrate:
+
+- Azure Virtual Machines
+- Azure Kubernetes Service
+- Terraform
+- Docker
+- Kubernetes
+- Azure Pipelines & Azure DevOps
+
+working together in a orchestrated dance.
+Another gain from this series is the DevOps perspective: looking to a problem globally, automate as a way of documenting processes, delivery changes at the click of a button, scalability and security built-in.
+
+
 ## Table of Contents
 
 The plan for the series is the following:
