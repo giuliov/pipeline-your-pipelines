@@ -119,8 +119,10 @@ resource "azurerm_key_vault_certificate" "win_vm" {
       # MUST match azurerm_virtual_machine.os_profile.computer_name
       subject = "CN=${var.env_name}-win${count.index + 1}"
       subject_alternative_names {
-        dns_names = [
+        dns_names = var.vm_public_access ? [
           azurerm_public_ip.vm_windows[count.index].fqdn,
+          "${var.env_name}-winhost${count.index + 1}"
+        ] : [
           "${var.env_name}-winhost${count.index + 1}"
         ]
       }

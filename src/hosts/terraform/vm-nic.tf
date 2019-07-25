@@ -9,7 +9,7 @@ resource "azurerm_network_interface" "vm_windows" {
     subnet_id                     = azurerm_subnet.vm_windows_subnet.id
     private_ip_address_allocation = "static"
     private_ip_address            = cidrhost(azurerm_subnet.vm_windows_subnet.address_prefix, 5 + count.index)
-    public_ip_address_id          = azurerm_public_ip.vm_windows[count.index].id
+    public_ip_address_id          = var.vm_public_access ? azurerm_public_ip.vm_windows[count.index].id : null
   }
 
   tags = local.tags
@@ -26,7 +26,7 @@ resource "azurerm_network_interface" "vm_linux" {
     subnet_id                     = azurerm_subnet.vm_linux_subnet.id
     private_ip_address_allocation = "static"
     private_ip_address            = cidrhost(azurerm_subnet.vm_linux_subnet.address_prefix, 5 + count.index)
-    public_ip_address_id          = azurerm_public_ip.vm_linux[count.index].id
+    public_ip_address_id          = var.vm_public_access ? azurerm_public_ip.vm_linux[count.index].id : null
   }
 
   tags = local.tags

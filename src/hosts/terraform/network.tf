@@ -26,7 +26,7 @@ resource "azurerm_subnet" "vm_linux_subnet" {
 }
 
 resource "azurerm_public_ip" "vm_windows" {
-  count               = var.num_windows_hosts
+  count               = var.vm_public_access ? var.num_windows_hosts : 0
   name                = "${var.env_name}-winhost${count.index + 1}-publicip"
   location            = azurerm_resource_group.pyp.location
   resource_group_name = azurerm_resource_group.pyp.name
@@ -37,7 +37,7 @@ resource "azurerm_public_ip" "vm_windows" {
 }
 
 resource "azurerm_public_ip" "vm_linux" {
-  count               = var.num_linux_hosts
+  count               = var.vm_public_access ? var.num_linux_hosts : 0
   name                = "${var.env_name}-linuxhost${count.index + 1}-publicip"
   location            = azurerm_resource_group.pyp.location
   resource_group_name = azurerm_resource_group.pyp.name
