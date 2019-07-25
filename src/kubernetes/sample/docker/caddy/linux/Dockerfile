@@ -44,7 +44,7 @@ EXPOSE 80 443 2015
 VOLUME /root/.caddy /srv
 WORKDIR /srv
 
-COPY Caddyfile.linux /etc/Caddyfile
+COPY Caddyfile /etc/Caddyfile
 COPY web/ /srv/
 
 # install process wrapper

@@ -1,1 +1,0 @@
-docker build -t caddy-test:windows -t caddy-test:v1.0.1 .

@@ -20,7 +20,7 @@ WORKDIR C:\caddy
 EXPOSE 80 443
 
 
-COPY Caddyfile.windows C:\caddy\conf\Caddyfile
+COPY Caddyfile C:\caddy\conf\Caddyfile
 COPY web\ C:\wwwroot\
 
 ENTRYPOINT [ "C:\\caddy\\caddy.exe" ]

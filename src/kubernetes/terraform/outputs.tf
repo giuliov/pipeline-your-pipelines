@@ -33,8 +33,20 @@ output "kube_config_path" {
 output "recommend_kube_config" {
   value = <<EOF
 
-# run this command to use the new AKS cluster
+# run this command in bash to use the new AKS cluster
 export KUBECONFIG=${local.kube_config_path}
+# or in PowerShell
+$KUBECONFIG = "${local.kube_config_path}"
+EOF
+}
+
+output "recommend_acr" {
+  value = <<EOF
+
+# use this environment variable in bash
+export ACR_HOSTNAME=${azurerm_container_registry.pyp.login_server}
+# or in PowerShell
+$ACR_HOSTNAME = "${azurerm_container_registry.pyp.login_server}"
 EOF
 }
 
