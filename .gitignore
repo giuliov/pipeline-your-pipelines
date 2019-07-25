@@ -7,3 +7,5 @@ _plan
 backend.hcl
 .vscode
 .VSCodeCounter
+**/azurek8s.crt
+**/azurek8s.config
