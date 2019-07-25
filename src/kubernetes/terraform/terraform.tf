@@ -7,7 +7,7 @@ terraform {
 #   terraform init -backend-config="backend.hcl"
 
 provider "azurerm" {
-  version         = "~> 1.31"
+  version         = "~> 1.32"
   subscription_id = var.azurerm_subscription_id
   client_id       = var.azurerm_client_id
   client_secret   = var.azurerm_client_secret
