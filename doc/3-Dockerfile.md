@@ -7,14 +7,11 @@ In the previous instalment we setup a couple of machines to run Docker and host 
 
 If you need a primer on Docker there is plenty of resources, from the excellent [The Docker Book](https://dockerbook.com/) to the [official documentation](https://docs.docker.com/), Pluralsight courses, etc.
 
-
-
 ## Dockerfile for a Windows Azure Pipelines agent
 
-This sample Docker file leverages Docker multi-stage build feature to download the Agent and the SDK binaries. Note that the version agent is defined in the Docker file, which works perfectly on the TFS/Azure DevOps Server scenario. More on the Azure DevOps Service scenario later.
+This sample Docker file leverages Docker multi-stage build feature to download the Agent and the SDK binaries. Note that the agent version is defined in the Docker file, which works perfectly on the TFS/Azure DevOps Server scenario. More on the Azure DevOps Service scenario later.
 
 To use a different toolchain, say .Net Core 3.0, you change the section marked `toolchain download` to download whatever SDK and tool you need to install, and also the `toolchain setup` section.
-
 
 ```Dockerfile
 # escape=`
@@ -93,8 +90,8 @@ ENTRYPOINT .\bin\Agent.Listener.exe configure --unattended `
 There are very few notable things.
 
 One is the use of environment variables to add Capabilities for Azure Pipelines.
-`setx` changes the system PATH before launching the agent; also explicitly put the SDK first in line for commands.
-The last trick use the `VSO_AGENT_IGNORE` environment variable: the agent will hide environment variables listed here from build scripts and tasks.
+Using `setx` changes the system PATH before launching the agent; also explicitly put the SDK first in line for commands.
+The last trick is to use the `VSO_AGENT_IGNORE` environment variable: the agent will hide environment variables listed here from build scripts and tasks.
 
 Note that the Dockerfile states explicitly the versions of Agent and .Net Core SDK to use. This is on purpose: we want fine control over the tool chain used in our builds.
 
@@ -103,26 +100,26 @@ The `--replace` options permits to re-register the agent with the same name.
 
 You may wonder why configuring the agent in the ENTRYPOINT clause instead of using a RUN. The reason is to allow instantiating multiple agents from the same image. If we used a RUN, the agent configuration would be hardcoded in the image.
 
-
-
 ## Dockerfile to image
 
-To validate we can connect to the Windows VM created in part 1.
+To validate, we can connect to the Windows VM created in part 1.
 
 To create the Docker image in the local host cache, that is on the machine where you run the command, execute
-`docker build -t azure-pipeline-netcore-sdk:2.2 .`.
-This operation will take many minutes, especially if the base image was never pulled in, so it is a good moment to have a cup of tea or coffee.
+`docker build -t azure-pipeline-netcore-sdk:2.2`.
+This operation will take a good few minutes, especially if the base image was never pulled in, so it is a good moment to have a cup of tea or coffee.
 
 The resulting docker image contains the binaries for the Azure Pipelines Agent and the toolchain, in the example .Net Core 2.2.
 
-Docker build does not run nor register the agent though. We have to start a container, that is a process, from the image.
-Before we need collecting the same information as if we were registering the agent manually:
+Docker build does not run nor registers the agent though. We have to start a container, that is a process, from the image.
+Before we would need to collect the same information as if we were registering the agent manually:
+
 - a valid [Personal Access Token](https://docs.microsoft.com/en-us/azure/devops/organizations/accounts/use-personal-access-tokens-to-authenticate?view=azure-devops) with **Agent Pools (read, manage)** permission
 - the URL of the TFS server or the Azure DevOps Organization
 - the name of the Agent Pool
 
 We can conveniently put this data in an `env_file`, e.g.
-```
+
+```Batchfile
 AZP_URL=https://dev.azure.com/yourorganization
 AZP_POOL=Default
 AZP_AGENT_NAME=MyFirstAgent
@@ -130,10 +127,11 @@ AZP_TOKEN=lrx6554vhogq7lknzznfi4uo75o4hlwfqw6mkr
 AZP_WORK=_work
 ```
 
-Now we can start a container named _test_ executing the command
+Now we can start a container named _test_, executing the command
 `docker run --env-file .\env_file --rm --name test azure-pipeline-netcore-sdk:2.2`,
 which should output
-```
+
+```Batchfile
 >> Connect:
 
 Connecting to server ...
@@ -150,7 +148,7 @@ Connecting to the server.
 2019-07-06 14:42:55Z: Listening for Jobs
 ```
 
-after some seconds, the agent will appear in Azure Pipelines.
+After a few seconds, the agent will appear in Azure Pipelines.
 
 ![New Agent in Azure Pipelines Pool](./images/new-agent-in-default-pool.png)
 
@@ -161,11 +159,9 @@ To stop the container run `docker stop test`; Azure Pipeline will notice this an
 
 We learned how to create as many Agents as we want on this host but, to properly manage images, we need a Docker Registry to share images between host machines. This will be detailed in the next article.
 
-
-
 ## Dockerfile for a Linux Azure Pipelines agent
 
-After successfully being able to run an Azure Pipelines agent on Windows, let's do the same in Linux.
+After successfully being able to run an Azure Pipelines agent on Windows, let's do the same on Linux.
 
 ```Dockerfile
 FROM alpine AS agent
@@ -200,7 +196,7 @@ RUN chmod +x start.sh
 ENTRYPOINT ["/bin/bash", "-c","/agent/start.sh"]
 ```
 
-This Dockerfile is different because we are fine with an existing Docker image and just the Linux agent to it.
+This Dockerfile is different because we are fine with an existing Docker image and just need to add the Linux agent to it.
 
 More notable is the `start.sh` script
 
@@ -253,24 +249,23 @@ source ./env.sh
 ./bin/Agent.Listener run & wait $!
 ```
 
-With these two files, we build the image executing `docker build -t azure-pipeline-node:12.6.0 .`.
+With these two files, we build the image executing `docker build -t azure-pipeline-node:12.6.0`.
 
-To test we run `docker run --env-file ./env_file --rm --name test azure-pipeline-node:12.6.0` after editing the `env_file`, e.g.
-```
+To test, we run `docker run --env-file ./env_file --rm --name test azure-pipeline-node:12.6.0` after editing the `env_file`, e.g.
+
+``` Bathcfile
 AZP_URL=https://dev.azure.com/yourorganization
 AZP_POOL=Default
 AZP_AGENT_NAME=MySecondAgent
 AZP_TOKEN=lrx6554vhogq7lknzznfi4uo75o4hlwfqw6mkr
 AZP_WORK=_work
 ```
+
 Note the different value for the agent name: it must be so or it will take the place of the Windows agent!
 
 Now we have two agents registered.
 
 ![Two agents](./images/two-agents.png)
-
-
-
 
 ## Azure DevOps Server and agent upgrades
 
@@ -285,9 +280,7 @@ What is the solution? It is described in [Running a self-hosted agent in Docker]
 
 > This approach will not function in air-gapped environments: the container requires internet access in addition to TFS/Azure DevOps Server.
 
-
 ### Azure Pipelines Service Windows Dockerfile
-
 
 ```Dockerfile
 # escape=`
@@ -340,9 +333,7 @@ CMD powershell .\start.ps1
 
 This image will be about 300 MB smaller without the agent image but the container will take many minutes to start, fail if it cannot connect to the Internet and use 100 MB more.
 
-
 ### Azure Pipelines Service Linux Dockerfile
-
 
 ```Dockerfile
 FROM node:12.6.0
@@ -360,22 +351,19 @@ CMD ["./start.sh"]
 
 The considerations are similar to Windows: a leaner image but slower to start container which requires Internet access.
 
-
-
 ## Caching, incremental builds and working directory
 
 In all examples above we have not specified a working directory for the agent. This is the recommended approach unless you have special requirements.
 
-In the default scenario the working directory is within the container image; if the container is restarted the content is lost. This can have an unpleasant effect on caching and break incremental builds that assume working on the same filesystem.
+In the default scenario, the working directory is within the container image; if the container is restarted the content is lost. This can have an unpleasant effect on caching and break incremental builds that assume they are working on the same filesystem.
 
-You may use an external volume, even living on a network share, for the agent working directory, if specify these three things:
+You may use an external volume, even living on a network share, for the agent working directory, if you specify these three things:
+
 1. in the Dockerfile modify `ENV AZP_WORK=/agent_work` and add `VOLUME /agent_work`
 2. create a volume for the container `docker volume create agent1-work`
 3. start the container specifying the volume `docker run --mount source=agent1-work,target=/agent_work --env-file .\env_file --rm --name test azure-pipeline-netcore-sdk:2.2`
 
 Docker volumes is a complex topic and I recommend to study the documentation at [Use volumes](https://docs.docker.com/storage/volumes).
-
-
 
 ## Limits of Docker approach
 
