@@ -1,22 +1,19 @@
 # Meta-pipelines - Part 1 - Docker Hosts
 
-
 The first step will be to setup an environment where we can run Docker and is the topic for this instalment.
 
-We need at least two kind of hosts: a Windows and a Linux machines. Simple reason: you cannot run Windows containers on a Linux host, also running Linux containers on a Windows machine is inefficient (they truly run inside a virtual machine).
+We need at least two kinds of hosts: a Windows and a Linux machines. Simple reason: you cannot run Windows containers on a Linux host, also running Linux containers on a Windows machine is inefficient (they truly run inside a virtual machine).
 Windows support for Docker is tied to specific kernel versions. My advice is to standardize on Windows Server 2019 as host.
 In this series I will setup the hosts in Azure for convenience, but you can have them on-premise or use a different cloud as well.
 
-The hosts ends having just three components installed
+The hosts ends having just three components installed :
+
 - Docker
 - Azure Pipeline Agent
-- PowerShell 6
+- PowerShell 6  
 This latter will be used by the build pipeline script in part 3.
 
-
-If you need a primer on Docker there is plenty of resources, from the excellent [The Docker Book](https://dockerbook.com/) to the [official documentation](https://docs.docker.com/), Pluralsight courses, etc.
-
-
+If you need a primer on Docker there are plenty of resources, from the excellent [The Docker Book](https://dockerbook.com/) to the [official documentation](https://docs.docker.com/), Pluralsight courses, etc.
 
 ## Azure Pipelines
 
@@ -24,22 +21,20 @@ Use an [ad-hoc Agents Pool](https://docs.microsoft.com/en-us/azure/devops/pipeli
 
 ![Adding MakeAgents Pool](./images/add-agent-pool.png)
 
-Avoid enabling the _Grant access permission to all pipelines_, prefer in this case more control and enable individual pipelines to use this Pool.
-You can additionally restrict permission to this and avoid queueing normal builds to it.
+Avoid enabling the _Grant access permission to all pipelines_ setting, prefer in this case more control and enable individual pipelines to use this Pool.
+You can additionally restrict permission to this and avoid queueing normal builds on it.
 
-I find convenient using a Personal Access Token (PAT from now on) to setup the agents.
+I find it convenient to use a Personal Access Token (PAT from now on) to setup the agents. Bare in mind that the PAT has an expiry date of maximum one year, so you will need to create a new one and apply it to the process.
 
 ![Add a PAT with proper permission](./images/MakeAgents-PAT.png)
 
 You may wonder why using a separate Pool. This queue will be dedicated to agents on _hosts_ to run "meta"-pipelines. They requires local admin permissions and have no build toolchain, just Docker, so any normal build will fail.
 
-
-
 ## The Windows Host
 
 This example use the Azure Portal, but it is easy to translate the process using automation tools like Terraform or Ansible.
 
-Follow the instruction in [Create a Windows virtual machine ](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-portal), make sure to select **Windows Server 2019 Datacenter with Containers**.
+Follow the instruction in [Create a Windows virtual machine](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/quick-create-portal), make sure to select **Windows Server 2019 Datacenter with Containers**.
 
 ![Select Windows Server 2019 Datacenter with Containers as VM image](./images/azure-vm-image.png)
 
@@ -51,7 +46,7 @@ I prefer using a separate data disk for docker so add one.
 
 ![Add a data disk](./images/windows-host-datadisk.png)
 
-When the machine is ready, connect to it and format the data disk assigning the drive letter `F:`.
+When the machine is ready, connect to it and format the data disk assigning the drive letter `F:`
 
 ![Partition the data disk](./images/partition-datadisk.png)
 
@@ -63,22 +58,26 @@ Resulting in this layout
 
 Now we can move Docker working directory to this data disk.
 Run these commands in an elevated PowerShell prompt.
+
 ```Powershell
 mkdir F:\docker-data
 '{ "data-root": "F:\\docker-data", "storage-opts": ["size=120GB"] }' | Out-File -Encoding Ascii -Filepath "C:\ProgramData\docker\config\daemon.json"
 Restart-Service docker
 ```
+
 Note that Docker is preinstalled and configured on this VM image.
 
 You can check that Docker is still working by running these commands.
-```
+
+```Batchfile
 docker pull hello-world
 docker run --rm -it hello-world
 ```
+
 The `F:\docker-data` directory should be populated and use 100MB of disk or so.
 
-
 Install PowerShell 6: it will be required as we progress in the series.
+
 ```Powershell
 mkdir F:\Temp
 pushd F:\Temp
@@ -122,12 +121,10 @@ if ((Get-FileHash $pkg -Algorithm sha256).Hash -eq '67634CC6B9D0A7F373940F08E6F7
 }
 popd
 ```
+
 `.\config.cmd` will prompt for logon information. If you prefer using another account instead of System, make sure it has administrative privileges on the machine.
 
-
-
 ## The Linux Host
-
 
 Create a VM as before, using the [guide](https://docs.microsoft.com/en-us/azure/virtual-machines/linux/quick-create-portal), please select **Ubuntu 18.04 VM** for the OS and let port 22 available for SSH.
 
@@ -168,8 +165,6 @@ tar zxvf ../vsts-agent-linux-x64-2.153.2.tar.gz
 sudo ./svc.sh install
 sudo ./svc.sh start
 ```
-
-
 
 ## What's next
 
