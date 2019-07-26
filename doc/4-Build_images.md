@@ -2,20 +2,17 @@
 
 In the previous instalments we examined a possible Dockerfile for an Azure Pipelines/TFS Agent. In this post, we will explore the pipeline that can automatically build such custom agent images.
 
-
-
 ## Docker Registry
 
 To automate properly we need a Docker Registry where storing the Docker images we build.
 There are many advantages in using a registry, in our scenario it enables:
+
 - pulling an image version built years ago
 - distribution of images to multiple hosts
 - caching locally base images, allowing air gap builds
 
 For the purpose of this series we will use Azure Container Registry (ACR for short), but there are many options; for example I used successfully [ProGet](https://inedo.com/proget).
 To setup your ACR, see the [quick-starts](https://docs.microsoft.com/en-us/azure/container-registry/).
-
-
 
 ## Image Build Pipeline
 
@@ -53,7 +50,7 @@ steps:
       latest
 ```
 
-The template is straightforward: it runs docker twice, one to logon a Docker Registry (ACR in this example) and next to build the image from the Docker fail and push the image to the Registry.
+The template is straightforward: it runs docker twice, one to login to a Docker Registry (ACR in this example) and next to build the image from the Docker file and push the image to the Registry.
 
 Using the template is also simple, invoke the template passing the parameters.
 You will note the **MakeAgents** queue; you will probably remember from the first instalment that this pool has the agents running on host machines. The demand for `Windows_NT` will pick the right host type matching the Dockerfile requirement.
@@ -103,11 +100,9 @@ The file organisation reflects the naming conventions:
 The _agents_ folder has everything needed to build and deploy the agents, _pipelines_ has the Azure Pipelines scripts in the form of YAML definitions and templates, distinguishing between _make_ and _deploy_ categories, i.e. make new Docker images versus starting new Docker containers.
 The _docker_ folders is referenced by the pipelines looking for the Docker context, in it we keep _windows_ and _linux_ images apart and finally we have a folder for each Dockerfile and referred scripts.
 
-
-
 ## What's next
 
-If we run the above pipelines successfully, we should see, in Azure Portal, two new Repositories (images) in the chosen Docker Registry
+If we run the above pipelines successfully, we should see, in Azure Portal, two new Repositories (images) in the chosen Docker Registry.
 
 ![Images in Docker Registry](./images/registry-list-of-repositories.png)
 
