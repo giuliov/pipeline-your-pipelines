@@ -6,9 +6,6 @@ In this post we will look how to provision the hosts themselves. For this purpos
 
 If you need a Terraform primer there is plenty of resources, from the excellent [Terraform: Up & Running](https://www.terraformupandrunning.com/) to the [official documentation](https://www.terraform.io/docs/index.html), Pluralsight courses, etc. I recommend to have at least a cursory knowledge of Terraform and Azure before delving deeper.
 
-
-
-
 ## Blueprinting
 
 Terraform will provision the virtual machines to host our Docker containers. The full source code is in the [repository](https://github.com/giuliov/pipeline-your-pipelines), here we will highlight and comment some major points to avoid listing all 500+ lines of code.
@@ -43,7 +40,7 @@ az account list
 #       }
 #     }
 #   ]
-# 
+#
 #   id          -> AZURE_SUBSCRIPTION_ID
 #   tenantId    -> AZURE_TENANT_ID
 az ad sp create-for-rbac --name AggregatorSPLimitedToTestRG
@@ -60,7 +57,7 @@ az ad sp create-for-rbac --name AggregatorSPLimitedToTestRG
 #   tenant      -> AZURE_TENANT_ID
 ```
 
-These script are controlled by a number of variables, described in the next table.
+These scripts are controlled by a number of variables, described in the next table.
 
 variable | use | default
 ---------|-----|-----------------
@@ -78,9 +75,9 @@ azuredevops_url | Azure DevOps URL | —
 azuredevops_pool_hosts | Azure DevOps Pool for Hosts | —
 
 (1) Default size is the cheapest, which may not be adequate for production usage.
-(2) Must have Read & manage permission at Agent Pools scope.
+(2) Must have Read & Manage permission at Agent Pools scope.
 
-Additional tuning require changing the Terraform source code.
+Additional tuning requires changing the Terraform source code.
 
 Some resource names are global to the whole Azure because they become part of DNS names; in our case the Registry (ACR) and KeyVault must be unique. To guarantee this we add a random 6 character string to the base name; in addition punctuation symbols are forbidden. Here is the code for it.
 
@@ -113,6 +110,7 @@ The _keepers_ argument ties the generation of a new random number to `env_name` 
 To configure the virtual machines we use an initialization script: `windows-setup.ps1` and `ubuntu-setup.sh`.
 
 They are similar in following these steps:
+
 1. Preparing the data disk
 2. Installing Docker
 3. Reconfiguring the Docker daemon to use the data volume for its operations
@@ -149,7 +147,7 @@ resource "azurerm_virtual_machine" "windows_vm" {
   # ... omissis ...
 ```
 
-`path.module` translates to the directory there is located the Terraform source.
+`path.module` translates to the directory where the Terraform source is located.
 
 `FirstLogonCommands.xml` lists a few actions to take, the last one launches our powershell script.
 
@@ -201,6 +199,7 @@ PROTECTED_SETTINGS
 ### Linux setup
 
 This script has a few tricks:
+
 - `set -e` to fail at first error and `-x` to log every command
 - `blockdev --rereadpt` to make the new partitioned disk visible
 - `-qq -o=Dpkg::Use-Pty=0` to minimize apt-get logging
@@ -209,10 +208,10 @@ This script has a few tricks:
 
 `${`...`}` expression are evaluated by Terraform: this means that the file has secrets in plain text.
 
-
 ## Applying the blueprint
 
 With the Terraform code in hand, we need something to run it with the proper configuration. What's better than an Azure Pipeline? Great! The requirement list includes:
+
 - the Hosted Agents has Terraform, but we need the latest 0.12
 - credentials for Terraform remote state
 - Azure credentials to pass on to Terraform
@@ -221,17 +220,21 @@ With the Terraform code in hand, we need something to run it with the proper con
 
 This is how each requirement is handled:
 
-- the [Terraform Installer Task](https://marketplace.visualstudio.com/items?itemName=charleszipp.azure-pipelines-tasks-terraform) makes sure that the right version of Terraform is installed and the `TERRAFORM_VERSION` says which version 
+- the [Terraform Installer Task](https://marketplace.visualstudio.com/items?itemName=charleszipp.azure-pipelines-tasks-terraform) makes sure that the right version of Terraform is installed and the `TERRAFORM_VERSION` says which version  
 - `backend.hcl` is a [secure file](https://docs.microsoft.com/en-us/azure/devops/pipelines/library/secure-files) configures Terraform remote state
-```
+
+```terraform
 workspaces {
   prefix = "pyp-"
 }
 hostname     = "app.terraform.io"
 organization = "myorganisation"
 token        = "**************"
+
 ```
+
 ![Secure file](./images/secure-file.png)
+
 - Four variables (`AZURE_SUBSCRIPTION_ID`, `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET`) defines the Azure credentials for Terraform, see [Argument](https://www.terraform.io/docs/providers/azurerm/index.html#argument-reference)
 - Two variables `AZUREDEVOPS_PAT` and `PIPELINE_POOL` configures the agent
 - the remaining variables set Terraform variables
@@ -298,10 +301,11 @@ steps:
 ```
 
 This pipeline may looks complex but it is just four activities:
-1. download the file with Terraform remote configuration
-2. get the correct version of Terraform
-3. `terraform init`
-4. `terraform apply`
+
+1. Download the file with Terraform remote configuration
+2. Get the correct version of Terraform
+3. Run `terraform init`
+4. Run `terraform apply`
 
 Terraform _init_ is the first command to run before any other meaningful command can be used: it downloads providers used in code and configures state. State must be remote (by default uses a local file) as the machine running this pipeline can change at each execution.
 I used the [recently announced](https://www.hashicorp.com/blog/introducing-terraform-cloud-remote-state-management) Remote State Management feature of Terraform Cloud, but you can change to Azure Storage as well.
@@ -309,10 +313,6 @@ _apply_ does all the heavy lifting, comparing the definitions in Terraform sourc
 
 Wow, we have a pipeline that deploy hosts to run pipelines that deploy docker containers to run the usual build pipelines!
 
-
 ## Secrets
 
 One note of caution: in this example secrets and password are accessible reading environment variables and saved in clear text in TF State.
-
-
-
