@@ -7,24 +7,27 @@ resource "azurerm_kubernetes_cluster" "pyp" {
   location            = azurerm_resource_group.pyp.location
   resource_group_name = azurerm_resource_group.pyp.name
   dns_prefix          = local.env_name_nosymbols
+  kubernetes_version  = "1.13.5"
 
   agent_pool_profile {
     name            = "linux" #default
     count           = 1
-    vm_size         = "Standard_B2s"
+    vm_size         = "Standard_D2s_v3"
     os_type         = "Linux"
-    os_disk_size_gb = 30
+    os_disk_size_gb = 80
     vnet_subnet_id  = azurerm_subnet.aks_subnet.id
+    type            = "VirtualMachineScaleSets"
   }
 
   # requires Azure Provider 1.32.0
   agent_pool_profile {
-    name            = "windows"
+    name            = "win"
     count           = 1
-    vm_size         = "Standard_B2s"
+    vm_size         = "Standard_D2s_v3"
     os_type         = "Windows"
-    os_disk_size_gb = 50
+    os_disk_size_gb = 100
     vnet_subnet_id  = azurerm_subnet.aks_subnet.id
+    type            = "VirtualMachineScaleSets"
   }
 
   # BUG: should not be mandatory
@@ -38,6 +41,7 @@ resource "azurerm_kubernetes_cluster" "pyp" {
     dns_service_ip     = cidrhost(local.aks_net, 10)
     docker_bridge_cidr = "172.17.0.1/16"
     service_cidr       = local.aks_net
+    load_balancer_sku  = "standard"
   }
 
   service_principal {
