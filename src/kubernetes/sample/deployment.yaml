@@ -1,33 +1,72 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: caddy-test-svc
+  name: caddy-test-svc-w
 spec:
   type: LoadBalancer
   ports:
-  - port: 8080
+  - port: 80
     targetPort: 2015
   selector:
-    app: caddy-test
+    app: caddy-test-w
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: caddy-test-svc-x
+spec:
+  type: LoadBalancer
+  ports:
+  - port: 80
+    targetPort: 2015
+  selector:
+    app: caddy-test-x
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: caddy-test-deployment
+  name: caddy-test-deployment-w
   labels:
-    app: caddy-test
+    app: caddy-test-w
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: caddy-test
+      app: caddy-test-w
   template:
     metadata:
       labels:
-        app: caddy-test
+        app: caddy-test-w
     spec:
       containers:
-      - name: caddy-test
-        image: caddy:v1.0.1
+      - name: caddy-test-w
+        image: pypk8s095d34.azurecr.io/caddy-test:1.0.1
         ports:
         - containerPort: 2015
+      nodeSelector:
+        beta.kubernetes.io/os: windows
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: caddy-test-deployment-x
+  labels:
+    app: caddy-test-x
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: caddy-test-x
+  template:
+    metadata:
+      labels:
+        app: caddy-test-x
+    spec:
+      containers:
+      - name: caddy-test-x
+        image: pypk8s095d34.azurecr.io/caddy-test:1.0.1
+        ports:
+        - containerPort: 2015
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+  
