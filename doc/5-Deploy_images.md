@@ -2,15 +2,15 @@
 
 In the previous instalment we built custom Docker images for Azure Pipelines/TFS Agents. In this post, we will explore the lifecycle of Docker containers running such images.
 
-
-
 ## Container Deploy Pipeline
 
 This pipeline is more complex than the previous requiring 4 actions:
+
 1. checking if the agent (_rectius_ the container running the agent) is running
-2. if so, stop and remove the container
-3. pulling the image from the selected Docker Registry
-4. starting the container with the proper parameters
+2. If so, stop and remove the container
+3. Pulling the image from the selected Docker Registry
+4. Starting the container with the proper parameters.
+
 While logically at third place, the pull operation does not interfere with running containers. This means that we can minimize downtime by making the stop-start sequence contiguous.
 
 Again, we use a generic template plus a YAML build that uses it.
@@ -22,7 +22,7 @@ The parameters should be obvious except the distinction between `docker_registry
 
 Hostname is part of the image name, while the connection name is used in the Docker login step.
 I recommend naming the connection the same as the Hostname.
-Another interesting couple of parameters is `os` vs `os_tag`: the former is the conventional name for the Host OS and Container platform, while the latter is the Agent Capability `Agent.OS`. 
+Another interesting couple of parameters is `os` vs `os_tag`: the former is the conventional name for the Host OS and Container platform, while the latter is the Agent Capability `Agent.OS`.
 
 ```yaml
 parameters:
@@ -88,22 +88,22 @@ jobs:
 ```
 
 The template requires the _MakeAgents_ Pool and specific Container platform for the image.
-After checking if the `AZURE_DEVOPS_PAT` is set (the YAML Template has no provision to require a mandatory global variable), the template pulls the image from the Registry; this can the most expensive operation.
-To check if a container with the same name is running on the host, the PowerShell script parse the output of `docker ps` and set the `ContainerIsRunning` variable.
+After checking if the `AZURE_DEVOPS_PAT` is set (the YAML Template has no provision to require a mandatory global variable), the template pulls the image from the Registry; this can be the most expensive operation.
+To check if a container with the same name is running on the host, the PowerShell script parses the output of `docker ps` and sets the `ContainerIsRunning` variable.
 This variable is used to conditionally execute `docker rm --force` to forcibly stop the container.
 With a clean state, the template can finally start the container.
 
 ### Run the container
 
-The first notable thing is the `--restart=always` to tell Docker to restart the container in all case, included a host machine reboot. This gives a degree of resilience at in case of crashes but can hide issues: if the container has a configuration error, Docker will insist restarting the container. This scenario becomes visible in Azure Pipelines, a minute or two after the pipeline completes successfully: the agent stays offline, when replacing an existing agent, or never shows up.
+The first notable thing is the `--restart=always` to tell Docker to restart the container in all case, included a host machine reboot. This gives a degree of resilience in case of crashes but can hide issues: if the container has a configuration error, Docker will insist restarting the container. This scenario becomes visible in Azure Pipelines, a minute or two after the pipeline completes successfully: the agent stays offline, when replacing an existing agent, or never shows up.
 In such case, connect to the host server, via RDP or SSH, and run `docker logs <container-name>` to see the error output.
 
 The `--detach` option to start the container process asynchronously and freeing the host agent to complete the build. As a consequence, the container may starts successfully but fails after some seconds trying to execute the agent configuration or running the agent.
 
-To avoid explicit display of environment variables in Azure Pipeline logs, the Task sets the environment variables and instruct Docker to forward those to the container. 
+To avoid explicit display of environment variables in Azure Pipeline logs, the Task sets the environment variables and instructs Docker to forward those to the container.
 Remember that the values will be easily accessible from the host machine. Typing `docker inspect dotnet-core-2.2` outputs all environment variables, including `AZP_TOKEN` (see below).
 
-```
+```yaml
 [
     {
         "Id": "73dab022f7c304a6f9e7db6d8d83464b2b4e269c7a894436868135bd52c9ee19",
@@ -151,6 +151,7 @@ jobs:
     toolchain: 'angular'
     toolchain_version: 'ng'
 ```
+
 Each template invocation runs in parallel, being a Pipeline Job.
 
 If you want to start additional copies of the same agent, use the `container_name_suffix` parameter to make the name unique. For example you can add this invocation to the above pipeline.
@@ -166,7 +167,6 @@ If you want to start additional copies of the same agent, use the `container_nam
 ```
 
 You can organize your pipelines in a different way to avoid restarting all the agents more or less at the same time. For example you can use a build definition for each agent toolchain.
-
 
 ### Secret variable for PAT
 
@@ -185,8 +185,6 @@ This variable cannot be defined in YAML and must be added to the Pipeline Defini
 ![Make it Secret and Settable at Queue time](./images/PAT-variable-4.png)
 
 Keep in mind that this variable is easily accessible from the Host machine using `docker inspect` command.
-
-
 
 ## What's next
 
