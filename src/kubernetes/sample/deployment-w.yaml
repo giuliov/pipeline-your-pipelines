@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: azdo-win-agents-deployment
+  labels:
+    app: azdow
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: azdow
+  template:
+    metadata:
+      labels:
+        app: azdow
+    spec:
+      containers:
+      - name: azdo
+        image: giuliovprodemo.azurecr.io/azure-pipelines-agent/windows/dotnet-core:latest
+        env:
+          - name: AZP_URL
+            value: https://dev.azure.com/giuliovaad
+          - name: AZP_TOKEN
+            valueFrom:
+              secretKeyRef:
+                name: azurepipeline-token
+                key: azurepipeline-token
+          - name: AZP_POOL
+            value: MakeAgents
+          - name: AZP_AGENT_NAME
+            value: Agent42
+      nodeSelector:
+        kubernetes.io/os: windows
+
+
