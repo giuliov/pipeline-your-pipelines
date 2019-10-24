@@ -38,8 +38,7 @@ az aks get-credentials          \
     --name pyptest3
 kubectl config use-context pyptest3
 # deploy the container mix
-kubectl apply -f sample/secret.yaml
-kubectl apply -f sample/deployment.yaml
+kubectl apply -f sample/
 # open the Dashboard
 kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 az aks browse --resource-group pyp-demo --name pyptest3
