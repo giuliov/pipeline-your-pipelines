@@ -19,14 +19,24 @@ spec:
         image: giuliovprodemo.azurecr.io/azure-pipelines-agent/linux/angular:latest
         env:
           - name: AZP_URL
-            value: https://dev.azure.com/giuliovaad
+            valueFrom:
+              configMapKeyRef:
+                name: azurepipeline-config
+                key: azurepipeline-url
           - name: AZP_TOKEN
             valueFrom:
               secretKeyRef:
                 name: azurepipeline-token
                 key: azurepipeline-token
           - name: AZP_POOL
-            value: MakeAgents
+            valueFrom:
+              configMapKeyRef:
+                name: azurepipeline-config
+                key: azurepipeline-pool
+          - name: AZP_AGENT_NAME
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.name
       nodeSelector:
         kubernetes.io/os: linux
 

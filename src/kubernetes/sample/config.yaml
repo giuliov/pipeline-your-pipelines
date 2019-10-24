@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: azurepipeline-config
+data:
+  azurepipeline-url: https://dev.azure.com/giuliovaad
+  azurepipeline-pool: MakeAgents
