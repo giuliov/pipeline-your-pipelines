@@ -1,14 +1,14 @@
-az acr check-health -n giuliovprodemo --yes
-az acr login --name giuliovprodemo
-docker pull giuliovprodemo.azurecr.io/azure-pipelines-agent/linux/angular:latest
-az acr login --name pypdemod7122a
-docker tag giuliovprodemo.azurecr.io/azure-pipelines-agent/linux/angular:latest pypdemod7122a.azurecr.io/azure-pipelines-agent/linux/angular:latest
-docker push pypdemod7122a.azurecr.io/azure-pipelines-agent/linux/angular:latest
 
-# the cluster
+# prep Azure CLI & Subscription
+az extension add --name aks-preview
+az extension update --name aks-preview
+az feature register --name MultiAgentpoolPreview --namespace Microsoft.ContainerService
+az provider register -n Microsoft.ContainerService
+
+# the cluster (Resource Group exists from previous)
 az aks create --verbose         \
 --resource-group pyp-demo       \
---name pyptest3                 \
+--name pyptest4                 \
 --location westeurope           \
 --node-vm-size Standard_D2s_v3  \
 --node-osdisk-size 100          \
@@ -22,9 +22,9 @@ az aks create --verbose         \
 # the Windows nodes
 az aks nodepool add             \
     --resource-group pyp-demo   \
-    --cluster-name pyptest3     \
+    --cluster-name pyptest4     \
     --os-type Windows           \
-    --name npwin                \
+    --name npwin1               \
     --node-count 1              \
     --kubernetes-version 1.14.7
 # attach existing ACR
@@ -38,7 +38,7 @@ az aks get-credentials          \
     --name pyptest3
 kubectl config use-context pyptest3
 # deploy the container mix
-kubectl apply -f sample/
+kubectl apply -f deployment/
 # open the Dashboard
 kubectl create clusterrolebinding kubernetes-dashboard --clusterrole=cluster-admin --serviceaccount=kube-system:kubernetes-dashboard
 az aks browse --resource-group pyp-demo --name pyptest3
