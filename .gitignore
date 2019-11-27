@@ -7,3 +7,5 @@ _plan
 backend.hcl
 .vscode
 .VSCodeCounter
+src/kubernetes/terraform/azurek8s.config
+src/kubernetes/terraform/azurek8s.crt
