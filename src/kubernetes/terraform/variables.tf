@@ -11,6 +11,11 @@ variable "acr_sku" {
   default = "Basic"
 }
 
+variable log_analytics_workspace_sku {
+  description = "The pricing SKU of the Log Analytics workspace."
+  default     = "PerGB2018"
+}
+
 variable "cluster_service_principal_client_id" {
   description = "Azure account used by Kubernetes to create resources"
   default     = "00000000-0000-0000-0000-000000000000"
