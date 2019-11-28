@@ -64,3 +64,16 @@ resource "azurerm_role_assignment" "aks_sp_network" {
   role_definition_name = "Network Contributor"
   principal_id         = azuread_service_principal.aks_sp.object_id
 }
+
+# coming from previous chapter
+data "azurerm_container_registry" "pyp" {
+  name                = var.container_registry_name
+  resource_group_name = var.container_registry_resource_group_name
+}
+
+resource "azurerm_role_assignment" "aks_sp_container_registry" {
+  scope                = data.azurerm_container_registry.pyp.id
+  role_definition_name = "AcrPull"
+  principal_id         = azuread_service_principal.aks_sp.object_id
+}
+

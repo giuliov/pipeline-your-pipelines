@@ -16,13 +16,12 @@ variable log_analytics_workspace_sku {
   default     = "PerGB2018"
 }
 
-variable "cluster_service_principal_client_id" {
+variable "container_registry_name" {
   description = "Azure account used by Kubernetes to create resources"
-  default     = "00000000-0000-0000-0000-000000000000"
 }
-variable "cluster_service_principal_client_secret" {
+
+variable "container_registry_resource_group_name" {
   description = "Azure account used by Kubernetes to create resources"
-  default     = "00000000000000000000000000000000"
 }
 
 variable "virtual_network_address_space" {
