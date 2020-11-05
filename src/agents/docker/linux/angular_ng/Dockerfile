@@ -1,7 +1,7 @@
 FROM alpine AS agent
 
-ENV AGENT_VERSION 2.153.2
-ENV AGENT_SHA256 59566e23ee745f47a8391b59f9e3de596abb5cdf425dbcd2aba155e43b6f0ab9
+ENV AGENT_VERSION 2.175.2
+ENV AGENT_SHA256 4a7e74002f5f5764bf123d03952cb029fa6789f105f894d9b865f34fc04ed5c1
 
 WORKDIR /agent
 
@@ -14,7 +14,7 @@ RUN curl -o vsts-agent-linux-x64.tgz https://vstsagentpackage.azureedge.net/agen
 
 
 # ----- toolchain start -----
-FROM node:12.6.0
+FROM node:12.19.0
 # ----- toolchain end -----
 
 # Azure Pipelines agent require git 2.9 or later
