@@ -1,6 +1,6 @@
 resource "azurerm_network_interface" "vm_windows" {
   count               = var.num_windows_hosts
-  name                = "${var.env_name}-windows${count.index + 1}-nic"
+  name                = "${var.env_name}-win${count.index + 1}-nic"
   location            = azurerm_resource_group.pyp.location
   resource_group_name = azurerm_resource_group.pyp.name
 

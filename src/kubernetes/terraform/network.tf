@@ -11,7 +11,7 @@ resource "azurerm_subnet" "aks_subnet" {
   name                 = "${var.env_name}-aks-subnet"
   resource_group_name  = azurerm_resource_group.pyp.name
   virtual_network_name = azurerm_virtual_network.pyp.name
-  address_prefix       = cidrsubnet(azurerm_virtual_network.pyp.address_space.0, 8, 240)
+  address_prefixes     = [cidrsubnet(azurerm_virtual_network.pyp.address_space.0, 8, 240)]
 }
 
 resource "azurerm_route_table" "aks" {

@@ -1,80 +1,78 @@
-resource "azurerm_virtual_machine" "windows_vm" {
-  count                            = var.num_windows_hosts
-  name                             = "${var.env_name}-win${count.index + 1}-vm"
-  location                         = azurerm_resource_group.pyp.location
-  resource_group_name              = azurerm_resource_group.pyp.name
-  network_interface_ids            = [azurerm_network_interface.vm_windows[count.index].id]
-  vm_size                          = var.vm_size
-  delete_os_disk_on_termination    = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
-  delete_data_disks_on_termination = true # CAVEAT: this is ok for demoing, a VERY BAD idea otherwise
+resource "azurerm_windows_virtual_machine" "windows_vm" {
+  count                 = var.num_windows_hosts
+  name                  = "${var.env_name}-win${count.index + 1}-vm"
+  location              = azurerm_resource_group.pyp.location
+  resource_group_name   = azurerm_resource_group.pyp.name
+  network_interface_ids = [azurerm_network_interface.vm_windows[count.index].id]
+  size                  = var.vm_size
 
-  storage_image_reference {
+  source_image_reference {
     publisher = "MicrosoftWindowsServer"
     offer     = "WindowsServer"
     sku       = "2019-Datacenter-with-Containers-smalldisk" # 2019-Datacenter-Core-with-Containers-smalldisk
     version   = "latest"                                    # CAVEAT: this is ok for demoing, for production specify a version
   }
 
-  storage_os_disk {
-    name              = "${var.env_name}-win${count.index + 1}-osdisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = var.vm_disk_type
+  os_disk {
+    name                 = "${var.env_name}-win${count.index + 1}-osdisk"
+    caching              = "ReadWrite"
+    storage_account_type = var.vm_disk_type
   }
 
-  storage_data_disk {
-    name              = "${var.env_name}-win${count.index + 1}-datadisk"
-    create_option     = "Empty"
-    lun               = 0
-    disk_size_gb      = "50"
-    managed_disk_type = var.vm_disk_type
-  }
+  computer_name  = substr(upper("w${count.index + 1}${var.env_name}"), 0, 15) # Trim to stay within 16 chars limit
+  admin_username = var.vm_admin_username
+  admin_password = random_string.vm_admin_password.result
+  # CAVEAT: Careful to stay within 64 KB limit for the custom data block
+  custom_data = base64encode("Param($AZP_URL='${var.azuredevops_url}',$AZP_TOKEN='${var.azuredevops_pat}',$AZP_POOL='${var.azuredevops_pool_hosts}') ${file("${path.module}/scripts/windows-setup.ps1")}")
 
-  os_profile {
-    computer_name  = "${var.env_name}-win${count.index + 1}" # CAVEAT: Careful to stay within 16 chars limit
-    admin_username = var.vm_admin_username
-    admin_password = random_string.vm_admin_password.result
-    # CAVEAT: Careful to stay within 64 KB limit for the custom data block
-    custom_data = "Param($AZP_URL='${var.azuredevops_url}',$AZP_TOKEN='${var.azuredevops_pat}',$AZP_POOL='${var.azuredevops_pool_hosts}') ${file("${path.module}/scripts/windows-setup.ps1")}"
-  }
+  secret {
+    key_vault_id = azurerm_key_vault.pyp.id
 
-  os_profile_secrets {
-    source_vault_id = azurerm_key_vault.pyp.id
-
-    vault_certificates {
-      certificate_url   = azurerm_key_vault_certificate.win_vm[count.index].secret_id
-      certificate_store = "My"
+    certificate {
+      url   = azurerm_key_vault_certificate.windows_vm[count.index].secret_id
+      store = "My"
     }
   }
 
-  os_profile_windows_config {
-    provision_vm_agent        = true
-    enable_automatic_upgrades = false
+  provision_vm_agent = true
 
-    # Auto-Login's required to configure machine
-    additional_unattend_config {
-      pass         = "oobeSystem"
-      component    = "Microsoft-Windows-Shell-Setup"
-      setting_name = "AutoLogon"
-      content      = "<AutoLogon><Password><Value>${random_string.vm_admin_password.result}</Value></Password><Enabled>true</Enabled><LogonCount>1</LogonCount><Username>${var.vm_admin_username}</Username></AutoLogon>"
-    }
+  # Auto-Login's required to configure machine
+  additional_unattend_content {
+    setting = "AutoLogon"
+    content = "<AutoLogon><Password><Value>${random_string.vm_admin_password.result}</Value></Password><Enabled>true</Enabled><LogonCount>1</LogonCount><Username>${var.vm_admin_username}</Username></AutoLogon>"
+  }
 
-    additional_unattend_config {
-      pass         = "oobeSystem"
-      component    = "Microsoft-Windows-Shell-Setup"
-      setting_name = "FirstLogonCommands"
-      content      = file("${path.module}/scripts/FirstLogonCommands.xml")
-    }
+  additional_unattend_content {
+    setting = "FirstLogonCommands"
+    content = file("${path.module}/scripts/FirstLogonCommands.xml")
   }
 
   tags = local.tags
 }
 
+resource "azurerm_managed_disk" "windows_vm" {
+  count                = var.num_windows_hosts
+  name                 = "${var.env_name}-win${count.index + 1}-datadisk"
+  location             = azurerm_resource_group.pyp.location
+  create_option        = "Empty"
+  disk_size_gb         = 50
+  resource_group_name  = azurerm_resource_group.pyp.name
+  storage_account_type = var.vm_disk_type
+}
 
-resource "azurerm_key_vault_certificate" "win_vm" {
-  count     = var.num_windows_hosts
-  name      = "${var.env_name}-win${count.index + 1}-cert"
-  vault_uri = azurerm_key_vault.pyp.vault_uri
+resource "azurerm_virtual_machine_data_disk_attachment" "windows_vm" {
+  count              = var.num_windows_hosts
+  virtual_machine_id = azurerm_windows_virtual_machine.windows_vm[count.index].id
+  managed_disk_id    = azurerm_managed_disk.windows_vm[count.index].id
+  lun                = 0
+  caching            = "None"
+}
+
+
+resource "azurerm_key_vault_certificate" "windows_vm" {
+  count        = var.num_windows_hosts
+  name         = "${var.env_name}-win${count.index + 1}-cert"
+  key_vault_id = azurerm_key_vault.pyp.id
 
   certificate_policy {
     issuer_parameters {

@@ -1,7 +1,7 @@
 locals {
   aks_net            = "10.200.0.0/16"
   service_cidr       = cidrsubnet(var.virtual_network_address_space, 8, 1)
-  kubernetes_version = "1.14.7"
+  kubernetes_version = var.kubernetes_version
   cluster_name       = "${var.env_name}-clu"
 }
 

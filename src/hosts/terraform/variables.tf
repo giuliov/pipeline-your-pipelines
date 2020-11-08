@@ -26,7 +26,7 @@ variable "vm_size" {
 }
 
 variable "vm_disk_type" {
-  default = "Standard_LRS"
+  default = "StandardSSD_LRS"
 }
 
 variable "vm_admin_username" {

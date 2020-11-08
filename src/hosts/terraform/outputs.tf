@@ -7,6 +7,10 @@ output "vault_uri" {
   value = azurerm_key_vault.pyp.vault_uri
 }
 
+output "vm_admin_user" {
+  value = var.vm_admin_username
+}
+
 output "vm_admin_password" {
   value = random_string.vm_admin_password.result
 }

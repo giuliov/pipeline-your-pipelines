@@ -7,6 +7,10 @@ variable "resource_group_location" {
   default = "westeurope"
 }
 
+variable "kubernetes_version" {
+  default = "1.18.10"
+}
+
 variable "acr_sku" {
   default = "Basic"
 }

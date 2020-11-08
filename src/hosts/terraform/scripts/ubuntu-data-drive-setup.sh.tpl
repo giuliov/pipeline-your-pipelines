@@ -6,11 +6,16 @@ AZP_URL=${azuredevops_url}
 AZP_TOKEN=${azuredevops_pat}
 AZP_POOL=${azuredevops_pool_hosts}
 
+# mount data disk
+parted --script /dev/sdc mklabel gpt
+parted --script --align optimal /dev/sdc mkpart primary 0% 100%
+blockdev --rereadpt -v /dev/sdc
+mke2fs -q -t ext4 -L "dockerdata" /dev/sdc1
 mkdir -p /docker-data
+echo "UUID=$(blkid | grep /dev/sdc1 | cut -d\" -f4)   /docker-data   ext4   defaults,nofail   1   2" >> /etc/fstab
+mount -a
 
 export DEBIAN_FRONTEND=noninteractive
-
-apt-get -qq -o=Dpkg::Use-Pty=0 update -qy
 
 apt-get -qq -o=Dpkg::Use-Pty=0 install -qy docker.io
 # move docker working directory
