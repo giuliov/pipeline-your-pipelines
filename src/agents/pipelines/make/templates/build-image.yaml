@@ -4,7 +4,7 @@ parameters:
   toolchain_version: ''
   repo_docker_path: 'src/agents/docker'
   image_name_prefix: 'azure-pipelines-agent'
-  docker_registry_connection: 'mydemo.azurecr.io'
+  docker_registry_connection: 'pyp-k8s-demo'
 
 steps:
 - task: Docker@2

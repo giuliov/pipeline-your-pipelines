@@ -1,8 +1,6 @@
-/*
 output "acr_url" {
-  value = azurerm_container_registry.pyp.login_server
+  value = data.azurerm_container_registry.pyp.login_server
 }
-*/
 
 output "kube_host" {
   value = azurerm_kubernetes_cluster.pyp.kube_config[0].host

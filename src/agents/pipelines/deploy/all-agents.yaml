@@ -10,7 +10,7 @@ jobs:
     os: 'windows'
     os_tag: 'Windows_NT'
     toolchain: 'dotnet-core'
-    toolchain_version: '2.2'
+    toolchain_version: '3.1'
 - template: templates/deploy-image.yaml
   parameters:
     os: 'linux'

@@ -12,4 +12,4 @@ steps:
   parameters:
     os: 'windows'
     toolchain: 'dotnet-core'
-    toolchain_version: '2.2'
+    toolchain_version: '3.1'
