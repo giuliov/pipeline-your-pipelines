@@ -1,0 +1,14 @@
+trigger:
+- master
+
+pool:
+  name: 'MakeAgents'
+  demands:
+  - Agent.OS -equals Windows_NT
+  - dotnetcore_3.1
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: 'src\test-apps\hello-world-core31\*.csproj'
