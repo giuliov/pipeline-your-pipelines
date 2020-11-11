@@ -2,7 +2,7 @@ trigger:
 - master
 
 pool:
-  vmImage: 'MakeAgents'
+  name: 'MakeAgents'
   demands:
   - Agent.OS -equals Linux
   - node.js
