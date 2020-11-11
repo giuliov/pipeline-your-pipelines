@@ -1,0 +1,10 @@
+trigger: none
+
+pool:
+  name: 'MakeAgents'
+
+steps:
+- script: |
+    echo Hello
+  displayName: ''
+  workingDirectory: 'src/kubernetes/deployment'

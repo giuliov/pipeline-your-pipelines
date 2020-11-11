@@ -1,5 +1,12 @@
 trigger:
-- master
+  branches:
+    include:
+    - '*'
+  paths:
+    include:
+    - src/test-apps/hello-world-ng/*
+    exclude:
+    - '*'
 
 pool:
   name: 'MakeAgents'
