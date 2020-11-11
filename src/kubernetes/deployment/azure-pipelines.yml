@@ -8,3 +8,27 @@ steps:
     echo Hello
   displayName: ''
   workingDirectory: 'src/kubernetes/deployment'
+- task: KubectlInstaller@0
+  inputs:
+    kubectlVersion: 'latest'
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: 'pyp-k8s-demo-cluster'
+    namespace: 'default'
+    command: 'delete'
+    useConfigurationFile: true
+    configuration: 'src/kubernetes/deployment'
+    secretType: 'generic'
+    secretName: 'azurepipeline-token'
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'Kubernetes Service Connection'
+    kubernetesServiceEndpoint: 'pyp-k8s-demo-cluster'
+    namespace: 'default'
+    command: 'apply'
+    useConfigurationFile: true
+    configuration: 'src/kubernetes/deployment'
+    secretType: 'generic'
+    secretArguments: '--from-literal=azurepipeline-token=g63rdt77ikixempbbpf53f3b3cbn4lo5zoxp7ydlwa2k32ysejja'
+    secretName: 'azurepipeline-token'
