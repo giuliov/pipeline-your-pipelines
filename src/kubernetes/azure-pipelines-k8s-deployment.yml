@@ -16,14 +16,6 @@ steps:
     connectionType: 'Kubernetes Service Connection'
     kubernetesServiceEndpoint: 'pyp-k8s-demo-cluster'
     namespace: 'default'
-    command: 'delete'
-    useConfigurationFile: true
-    configuration: 'src/kubernetes/deployment'
-- task: Kubernetes@1
-  inputs:
-    connectionType: 'Kubernetes Service Connection'
-    kubernetesServiceEndpoint: 'pyp-k8s-demo-cluster'
-    namespace: 'default'
     command: 'apply'
     useConfigurationFile: true
     configuration: 'src/kubernetes/deployment'
