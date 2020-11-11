@@ -4,14 +4,15 @@ pool:
   name: 'MakeAgents'
 
 steps:
-- script: |
-    echo Hello
-  displayName: ''
+- powershell: |
+    rm -f secret.yaml
+  displayName: 'delete secret.yaml'
   workingDirectory: 'src/kubernetes/deployment'
 - task: KubectlInstaller@0
   inputs:
     kubectlVersion: 'latest'
 - task: Kubernetes@1
+  displayName: 'deploy to k8s'
   inputs:
     connectionType: 'Kubernetes Service Connection'
     kubernetesServiceEndpoint: 'pyp-k8s-demo-cluster'
