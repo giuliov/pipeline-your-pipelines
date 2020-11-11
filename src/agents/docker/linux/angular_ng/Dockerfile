@@ -17,6 +17,9 @@ RUN curl -o vsts-agent-linux-x64.tgz https://vstsagentpackage.azureedge.net/agen
 FROM node:12.19.0
 # ----- toolchain end -----
 
+# variables to define Capabilities
+ENV NODEJS_VERSION=12
+
 # Azure Pipelines agent require git 2.9 or later
 RUN apt-get install git -y
 
