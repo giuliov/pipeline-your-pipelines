@@ -9,6 +9,8 @@ pool:
 
 steps:
 - script: |
+    npm install -g @angular/cli
+    npm install
     ng build --prod
-  displayName: 'ng build'
+  displayName: 'npm install and build'
   workingDirectory: 'src/test-apps/hello-world-ng'
