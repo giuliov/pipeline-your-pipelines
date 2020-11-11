@@ -1,0 +1,14 @@
+trigger:
+- master
+
+pool:
+  vmImage: 'MakeAgents'
+  demands:
+  - Agent.OS -equals Linux
+  - node.js
+
+steps:
+- script: |
+    ng build --prod
+  displayName: 'ng build'
+  workingDirectory: 'src/test-apps/hello-world-ng'
