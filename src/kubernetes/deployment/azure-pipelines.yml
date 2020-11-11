@@ -30,5 +30,5 @@ steps:
     useConfigurationFile: true
     configuration: 'src/kubernetes/deployment'
     secretType: 'generic'
-    secretArguments: '--from-literal=azurepipeline-token=g63rdt77ikixempbbpf53f3b3cbn4lo5zoxp7ydlwa2k32ysejja'
+    secretArguments: '--from-literal=azurepipeline-token=$(PAT)'
     secretName: 'azurepipeline-token'
