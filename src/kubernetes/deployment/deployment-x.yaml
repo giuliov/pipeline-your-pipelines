@@ -16,7 +16,10 @@ spec:
     spec:
       containers:
       - name: azdo
-        image: giuliovprodemo.azurecr.io/azure-pipelines-agent/linux/angular:latest
+        image: pypk8sdemo552841.azurecr.io/azure-pipelines-agent/linux/angular:latest
+# test locally
+#        image: azure-pipelines-agent-linux-angular:latest
+#        imagePullPolicy: Never
         env:
           - name: AZP_URL
             valueFrom:

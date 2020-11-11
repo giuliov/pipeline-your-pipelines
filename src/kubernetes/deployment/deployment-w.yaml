@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: azdo
-        image: giuliovprodemo.azurecr.io/azure-pipelines-agent/windows/dotnet-core:latest
+        image: pypk8sdemo552841.azurecr.io/azure-pipelines-agent/windows/dotnet-core:latest
         env:
           - name: AZP_URL
             valueFrom:
