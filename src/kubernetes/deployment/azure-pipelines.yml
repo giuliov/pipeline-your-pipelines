@@ -19,8 +19,6 @@ steps:
     command: 'delete'
     useConfigurationFile: true
     configuration: 'src/kubernetes/deployment'
-    secretType: 'generic'
-    secretName: 'azurepipeline-token'
 - task: Kubernetes@1
   inputs:
     connectionType: 'Kubernetes Service Connection'
